@@ -17,6 +17,9 @@ body {
   background: var(--bg);
   color: var(--fg);
   line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
 header {
@@ -68,30 +71,40 @@ code {
 main {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 3rem 2rem 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+  flex: 1;
 }
 
 body.has-file main {
-  align-items: stretch;
   padding: 1.25rem 2rem;
+  gap: 1.25rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
+/* ── hero upload strip ── */
 .upload-strip {
+  flex: 1;
   display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  width: 100%;
-  max-width: 540px;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(45deg, var(--border) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--border) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--border) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--border) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
 }
 
 body.has-file .upload-strip {
+  flex: none;
   flex-direction: row;
   align-items: flex-start;
-  max-width: none;
+  justify-content: flex-start;
+  background: none;
+  background-image: none;
   gap: 1.5rem;
 }
 
@@ -111,28 +124,72 @@ body.has-file .options {
 }
 
 .dropzone {
+  width: 280px;
+  height: 280px;
+  border: none;
+  border-radius: 62% 58% 54% 60% / 58% 62% 60% 56%;
+  padding: 2rem;
+  background: var(--accent);
+  color: #fff;
+  text-align: center;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  animation: blob-drift 8s ease-in-out infinite;
+  transition: transform .25s, background .2s;
+  box-shadow: 0 20px 60px rgba(124,58,237,.4);
+}
+.dropzone.drag {
+  background: #6d28d9;
+  transform: scale(1.06);
+  animation-play-state: paused;
+}
+.dropzone p { margin: .2rem 0; color: rgba(255,255,255,.92); font-size: .9rem; }
+
+@keyframes blob-drift {
+  0%,100% { border-radius: 62% 58% 54% 60% / 58% 62% 60% 56%; }
+  25%      { border-radius: 56% 64% 58% 54% / 62% 56% 64% 60%; }
+  50%      { border-radius: 58% 56% 62% 58% / 60% 64% 56% 62%; }
+  75%      { border-radius: 64% 58% 56% 62% / 56% 60% 62% 58%; }
+}
+
+body.has-file .dropzone {
+  width: auto;
+  height: auto;
   border: 2px dashed var(--border);
   border-radius: 8px;
-  padding: 1.5rem 1.25rem;
+  padding: 1.25rem;
   background: var(--card);
-  text-align: center;
-  transition: border-color .2s, background .2s;
+  color: var(--fg);
+  animation: none;
+  box-shadow: none;
+  transition: border-color .15s, background .15s;
 }
-.dropzone.drag { border-color: var(--accent); background: #ede9fe; }
-.dropzone p { margin: .25rem 0; }
-.dropzone .or { color: var(--muted); font-size: .9em; margin-top: 1rem; }
+body.has-file .dropzone.drag { border-color: var(--accent); background: #ede9fe; }
+body.has-file .dropzone p { color: inherit; margin: .25rem 0; }
 
 .dropzone-icon {
   display: block;
-  width: 2.75rem;
-  height: 2.75rem;
-  margin: 0 auto .6rem;
+  width: 3rem;
+  height: 3rem;
+  margin: 0 auto .75rem;
+  color: rgba(255,255,255,.9);
+  transition: transform .2s;
+}
+.dropzone:hover .dropzone-icon { transform: translateY(-4px); }
+.dropzone.drag .dropzone-icon { transform: scale(1.1); }
+
+body.has-file .dropzone-icon {
   color: var(--accent);
   opacity: .4;
-  transition: opacity .2s;
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-bottom: .6rem;
 }
-.dropzone:hover .dropzone-icon,
-.dropzone.drag .dropzone-icon { opacity: .7; }
+body.has-file .dropzone:hover .dropzone-icon,
+body.has-file .dropzone.drag .dropzone-icon { opacity: .7; transform: none; }
 
 .file-button {
   display: inline-block;
@@ -145,39 +202,46 @@ body.has-file .options {
 }
 .file-button input { display: none; }
 
+body:not(.has-file) .file-button {
+  background: rgba(255,255,255,.2);
+  border: 1px solid rgba(255,255,255,.4);
+  color: #fff;
+}
+body:not(.has-file) .file-button:hover { background: rgba(255,255,255,.32); }
+
 .samples {
   display: flex;
   flex-wrap: wrap;
-  gap: .35rem;
+  gap: .5rem;
   justify-content: center;
-  margin-top: .5rem;
 }
 .samples button {
-  font-size: .8rem;
-  padding: .25rem .65rem;
-  background: #fff;
-  border: 1px solid var(--border);
+  font-size: .82rem;
+  padding: .3rem .75rem;
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.22);
   border-radius: 999px;
   cursor: pointer;
-  color: var(--muted);
+  color: rgba(255,255,255,.82);
   transition: border-color .15s, background .15s, color .15s;
 }
 .samples button:hover {
-  border-color: var(--accent);
-  background: #ede9fe;
-  color: var(--accent);
+  background: rgba(167,139,250,.3);
+  border-color: #a78bfa;
+  color: #fff;
 }
 
 .options {
+  display: none;
   background: var(--card);
   padding: 1rem;
   border-radius: 8px;
   border: 1px solid var(--border);
   border-top: 2px solid var(--accent);
-  display: flex;
   flex-direction: column;
   gap: .6rem;
 }
+body.has-file .options { display: flex; }
 
 .opts-heading {
   margin: 0 0 .1rem;
@@ -299,6 +363,21 @@ body.has-file .previews {
   font-size: .8rem;
   color: var(--muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* ── wave + samples section ── */
+.wave-section { flex-shrink: 0; }
+body.has-file .wave-section { display: none; }
+.wave-svg { display: block; width: 100%; margin-bottom: -1px; }
+.samples-area {
+  background: #1a0f2e;
+  padding: 1.75rem 2rem 3rem;
+  text-align: center;
+}
+.samples-label {
+  margin: 0 0 1.25rem;
+  color: rgba(255,255,255,.7);
+  font-size: .95rem;
 }
 
 footer {

@@ -33,13 +33,11 @@
             <line x1="12" y1="12" x2="12" y2="21"></line>
             <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
           </svg>
-          <p><strong>Drop an SVG here</strong> or</p>
+          <p><strong>Drop an SVG</strong> or paste</p>
           <label class="file-button">
             Choose file
             <input type="file" id="file-input" accept=".svg,image/svg+xml" />
           </label>
-          <p class="or">or pick a sample:</p>
-          <div class="samples" id="samples"></div>
         </div>
 
         <div class="options">
@@ -63,6 +61,16 @@
         </div>
 
       </section>
+
+      <div class="wave-section">
+        <svg class="wave-svg" viewBox="0 0 1440 100" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,40 C200,90 480,10 720,50 C960,90 1200,15 1440,55 L1440,100 L0,100 Z" fill="#1a0f2e"/>
+        </svg>
+        <div class="samples-area">
+          <p class="samples-label">Or try one of these:</p>
+          <div class="samples" id="samples"></div>
+        </div>
+      </div>
 
       <div class="report" id="report" role="status" aria-live="polite" aria-atomic="true"></div>
 
