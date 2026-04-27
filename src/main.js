@@ -19,6 +19,7 @@ const els = {
   optEmbed: $('#opt-embed'),
   optSvgo: $('#opt-svgo'),
   optStrip: $('#opt-strip-svg-fonts'),
+  optBgColor: $('#opt-bg-color'),
   download: $('#download'),
   before: $('#before'),
   after: $('#after'),
@@ -132,6 +133,9 @@ function init() {
   [els.optEmbed, els.optSvgo, els.optStrip].forEach((cb) =>
     cb.addEventListener('change', () => { if (currentSvg) process(); }),
   );
+  els.optBgColor.addEventListener('input', (e) => {
+    els.splitView.style.setProperty('--canvas-bg', e.target.value);
+  });
   els.download.addEventListener('click', download);
 }
 

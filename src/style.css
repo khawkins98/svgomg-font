@@ -209,6 +209,7 @@ body:not(.has-file) .file-button:hover { background: rgba(255,255,255,.32); }
   position: relative;
   overflow: hidden;
   --split: 50%;
+  --canvas-bg: #1a0f2e;
 }
 body.has-file .split-view { display: block; }
 
@@ -221,7 +222,7 @@ body.has-file .split-view { display: block; }
   align-items: center;
   justify-content: center;
   /* subtle checkered canvas for SVG transparency */
-  background-color: #1a0f2e;
+  background-color: var(--canvas-bg);
   background-image:
     linear-gradient(45deg, rgba(255,255,255,.045) 25%, transparent 25%),
     linear-gradient(-45deg, rgba(255,255,255,.045) 25%, transparent 25%),
@@ -495,6 +496,16 @@ body.has-file #close-btn { display: flex; }
   width: 14px;
   height: 14px;
   cursor: pointer;
+}
+.hud-right input[type="color"] {
+  width: 22px;
+  height: 22px;
+  padding: 1px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 4px;
+  background: rgba(255,255,255,.08);
+  cursor: pointer;
+  flex-shrink: 0;
 }
 .hud-right code {
   background: rgba(255,255,255,.12);
