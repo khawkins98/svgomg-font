@@ -27,6 +27,7 @@
     </header>
 
     <main>
+      <!-- ── hero state (no file loaded) ── -->
       <section class="upload-strip">
         <div class="dropzone" id="dropzone">
           <svg class="dropzone-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -37,35 +38,6 @@
           <p><strong>Drop the culprit</strong></p>
           <button type="button" class="file-button" id="hero-file-btn">Choose file</button>
         </div>
-
-        <div class="loaded-bar">
-          <div class="loaded-file-info">
-            <svg class="loaded-file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-            </svg>
-            <span class="loaded-name" id="loaded-name"></span>
-            <button type="button" class="replace-btn" id="replace-btn">↺ Replace</button>
-          </div>
-
-          <div class="options">
-            <label>
-              <input type="checkbox" id="opt-embed" checked />
-              Embed fonts
-            </label>
-            <label>
-              <input type="checkbox" id="opt-svgo" />
-              Optimize
-            </label>
-            <label>
-              <input type="checkbox" id="opt-strip-svg-fonts" checked />
-              Strip <code>&lt;font&gt;</code>
-            </label>
-          </div>
-
-          <button id="download" class="download-btn" hidden>↓ Download</button>
-        </div>
-
         <input type="file" id="file-input" accept=".svg,image/svg+xml" />
       </section>
 
@@ -79,20 +51,62 @@
         </div>
       </div>
 
-      <div class="report" id="report" role="status" aria-live="polite" aria-atomic="true"></div>
+      <!-- ── loaded state: full-viewport canvas ── -->
+      <div class="split-view" id="split-view">
 
-      <section class="previews">
-        <div class="preview">
-          <h2>Before</h2>
+        <!-- red X to close -->
+        <button type="button" id="close-btn" aria-label="Close file and start over">&#x2715;</button>
+
+        <!-- before pane -->
+        <div class="before-pane" id="before-pane">
+          <div class="pane-label">Before</div>
           <div class="frame" id="before"></div>
-          <div class="meta" id="before-meta"></div>
+          <div class="pane-meta" id="before-meta"></div>
         </div>
-        <div class="preview">
-          <h2>After</h2>
+
+        <!-- drag handle -->
+        <div class="split-handle" id="split-handle"
+          role="separator" aria-orientation="vertical"
+          aria-label="Drag to compare before and after"
+          tabindex="0">
+          <div class="split-handle-grip">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 18" fill="currentColor" aria-hidden="true" width="10" height="18">
+              <rect x="2" y="0" width="2" height="18" rx="1"/>
+              <rect x="6" y="0" width="2" height="18" rx="1"/>
+            </svg>
+          </div>
+        </div>
+
+        <!-- after pane -->
+        <div class="after-pane" id="after-pane">
+          <div class="pane-label">After</div>
           <div class="frame" id="after"></div>
-          <div class="meta" id="after-meta"></div>
+          <div class="pane-meta" id="after-meta"></div>
         </div>
-      </section>
+
+        <!-- HUD: file info + status + download -->
+        <div class="hud hud-left">
+          <div class="hud-file-row">
+            <svg class="hud-file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span class="hud-filename" id="loaded-name"></span>
+            <button type="button" class="hud-replace" id="replace-btn">↺</button>
+          </div>
+          <div id="report" class="hud-report" role="status" aria-live="polite" aria-atomic="true"></div>
+          <button id="download" class="hud-download" hidden>↓ Download fixed SVG</button>
+        </div>
+
+        <!-- HUD: options -->
+        <div class="hud hud-right">
+          <p class="hud-opts-title">Options</p>
+          <label><input type="checkbox" id="opt-embed" checked /> Embed fonts</label>
+          <label><input type="checkbox" id="opt-svgo" /> Optimize (SVGO)</label>
+          <label><input type="checkbox" id="opt-strip-svg-fonts" checked /> Strip <code>&lt;font&gt;</code></label>
+        </div>
+
+      </div>
     </main>
 
     <footer>

@@ -11,6 +11,10 @@ const els = {
   heroFileBtn: $('#hero-file-btn'),
   replaceBtn: $('#replace-btn'),
   loadedName: $('#loaded-name'),
+  closeBtn: $('#close-btn'),
+  splitView: $('#split-view'),
+  splitHandle: $('#split-handle'),
+  beforePane: $('#before-pane'),
   samples: $('#samples'),
   optEmbed: $('#opt-embed'),
   optSvgo: $('#opt-svgo'),
@@ -40,6 +44,23 @@ let processedSvg = null;
 let runId = 0;
 const fontCache = new Map();
 
+function closeFile() {
+  runId++; // cancel any in-flight process()
+  currentSvg = null;
+  processedSvg = null;
+  sourceName = '';
+  fontCache.clear();
+  els.before.innerHTML = '';
+  els.after.innerHTML = '';
+  els.beforeMeta.textContent = '';
+  els.afterMeta.textContent = '';
+  els.report.innerHTML = '';
+  els.loadedName.textContent = '';
+  els.download.hidden = true;
+  els.splitView.style.removeProperty('--split'); // reset to CSS default 50%
+  document.body.classList.remove('has-file');
+}
+
 function init() {
   for (const s of SAMPLES) {
     const btn = document.createElement('button');
@@ -57,6 +78,34 @@ function init() {
   const openFilePicker = () => { els.file.value = ''; els.file.click(); };
   els.heroFileBtn.addEventListener('click', openFilePicker);
   els.replaceBtn.addEventListener('click', openFilePicker);
+
+  els.closeBtn.addEventListener('click', closeFile);
+
+  // Split-view drag handle
+  let splitting = false;
+  els.splitHandle.addEventListener('pointerdown', (e) => {
+    splitting = true;
+    els.splitHandle.setPointerCapture(e.pointerId);
+  });
+  const updateSplit = (e) => {
+    if (!splitting) return;
+    const rect = els.splitView.getBoundingClientRect();
+    const pct = Math.min(90, Math.max(10, ((e.clientX - rect.left) / rect.width) * 100));
+    els.splitView.style.setProperty('--split', `${pct}%`);
+  };
+  const endSplit = () => { splitting = false; };
+  els.splitHandle.addEventListener('pointermove', updateSplit);
+  els.splitHandle.addEventListener('pointerup', endSplit);
+  els.splitHandle.addEventListener('pointercancel', endSplit);
+  els.splitHandle.addEventListener('lostpointercapture', endSplit);
+  // Keyboard split adjust
+  els.splitHandle.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const cur = parseFloat(els.splitView.style.getPropertyValue('--split')) || 50;
+    const next = e.key === 'ArrowLeft' ? Math.max(10, cur - 5) : Math.min(90, cur + 5);
+    els.splitView.style.setProperty('--split', `${next}%`);
+  });
 
   els.file.addEventListener('change', (e) => {
     const file = e.target.files?.[0];
