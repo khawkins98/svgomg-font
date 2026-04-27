@@ -30,11 +30,17 @@ header {
   color: #fff;
 }
 header h1 {
-  margin: 0 0 .35rem;
+  margin: 0;
   font-size: 1.6rem;
   font-weight: 700;
   letter-spacing: -.02em;
   color: #fff;
+}
+.brand-row {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  margin-bottom: .35rem;
 }
 .brand-omg { color: #a78bfa; }
 .tagline { margin: 0; color: rgba(255,255,255,.78); max-width: 65ch; font-size: .95rem; }
@@ -111,8 +117,8 @@ body.has-file .badges { display: none; }
 body.has-file header {
   padding: .55rem 1.25rem;
 }
-body.has-file header h1 { margin-bottom: 0; font-size: 1.2rem; }
-body.has-file .about-btn { top: 50%; transform: translateY(-50%); }
+body.has-file header h1 { font-size: 1.2rem; }
+body.has-file .brand-row { margin-bottom: 0; }
 
 .dropzone {
   width: 280px;
@@ -539,19 +545,24 @@ input[type="checkbox"]:focus-visible {
 
 /* ── about button ── */
 .about-btn {
-  position: absolute;
-  top: 1rem;
-  right: 1.25rem;
-  background: rgba(255,255,255,.12);
-  border: 1px solid rgba(255,255,255,.25);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.35);
   color: rgba(255,255,255,.85);
-  border-radius: 999px;
-  padding: .3rem .85rem;
-  font-size: .82rem;
+  font-size: .78rem;
+  font-weight: 700;
+  line-height: 1;
   cursor: pointer;
-  transition: background .15s, color .15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background .15s, color .15s, border-color .15s;
+  font-family: inherit;
 }
-.about-btn:hover { background: rgba(255,255,255,.22); color: #fff; }
+.about-btn:hover { background: rgba(255,255,255,.28); border-color: rgba(255,255,255,.6); color: #fff; }
 
 /* ── about dialog ── */
 #about-dialog {
