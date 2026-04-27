@@ -10,7 +10,11 @@
 export function extractFontFamilies(svgText) {
   const families = new Set();
 
-  for (const m of svgText.matchAll(/font-family\s*[:=]\s*(["']?)([^;"'<>]+)\1/g)) {
+  // Stop at `;`, `}`, `{`, quotes, or angle brackets — these all terminate a value
+  // in either CSS rules or SVG attribute syntax. Without `}`, compact rules like
+  // `.l{font-family:Roboto-Bold}.m{font-family:Roboto-Regular}` get captured as one
+  // monster value.
+  for (const m of svgText.matchAll(/font-family\s*[:=]\s*(["']?)([^;"'<>{}]+)\1/g)) {
     const raw = m[2].trim();
     for (const name of raw.split(',')) {
       const clean = name.trim().replace(/^["']|["']$/g, '');
