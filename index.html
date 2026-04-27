@@ -35,32 +35,38 @@
             <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
           </svg>
           <p><strong>Drop the culprit</strong></p>
-          <label class="file-button">
-            Choose file
-            <input type="file" id="file-input" accept=".svg,image/svg+xml" />
-          </label>
+          <button type="button" class="file-button" id="hero-file-btn">Choose file</button>
         </div>
 
-        <div class="options">
-          <h2 class="opts-heading">Options</h2>
-          <label>
-            <input type="checkbox" id="opt-embed" checked />
-            Embed fonts as base64 woff2
-          </label>
-          <label>
-            <input type="checkbox" id="opt-svgo" />
-            Optimize with SVGO
-          </label>
-          <label>
-            <input type="checkbox" id="opt-strip-svg-fonts" checked />
-            Strip deprecated <code>&lt;font&gt;</code> blocks
-          </label>
-          <div class="actions">
-            <button id="run" disabled>Process</button>
-            <button id="download" disabled>Download</button>
+        <div class="loaded-bar">
+          <div class="loaded-file-info">
+            <svg class="loaded-file-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+            <span class="loaded-name" id="loaded-name"></span>
+            <button type="button" class="replace-btn" id="replace-btn">↺ Replace</button>
           </div>
+
+          <div class="options">
+            <label>
+              <input type="checkbox" id="opt-embed" checked />
+              Embed fonts
+            </label>
+            <label>
+              <input type="checkbox" id="opt-svgo" />
+              Optimize
+            </label>
+            <label>
+              <input type="checkbox" id="opt-strip-svg-fonts" checked />
+              Strip <code>&lt;font&gt;</code>
+            </label>
+          </div>
+
+          <button id="download" class="download-btn" hidden>↓ Download</button>
         </div>
 
+        <input type="file" id="file-input" accept=".svg,image/svg+xml" />
       </section>
 
       <div class="wave-section">

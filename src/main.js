@@ -8,11 +8,13 @@ const $ = (sel) => document.querySelector(sel);
 const els = {
   drop: $('#dropzone'),
   file: $('#file-input'),
+  heroFileBtn: $('#hero-file-btn'),
+  replaceBtn: $('#replace-btn'),
+  loadedName: $('#loaded-name'),
   samples: $('#samples'),
   optEmbed: $('#opt-embed'),
   optSvgo: $('#opt-svgo'),
   optStrip: $('#opt-strip-svg-fonts'),
-  run: $('#run'),
   download: $('#download'),
   before: $('#before'),
   after: $('#after'),
@@ -33,7 +35,10 @@ const SAMPLES = [
 
 let currentSvg = null;
 let currentName = 'output.svg';
+let sourceName = '';
 let processedSvg = null;
+let runId = 0;
+const fontCache = new Map();
 
 function init() {
   for (const s of SAMPLES) {
@@ -48,6 +53,10 @@ function init() {
   els.aboutDialog.addEventListener('click', (e) => {
     if (e.target === els.aboutDialog) els.aboutDialog.close();
   });
+
+  const openFilePicker = () => { els.file.value = ''; els.file.click(); };
+  els.heroFileBtn.addEventListener('click', openFilePicker);
+  els.replaceBtn.addEventListener('click', openFilePicker);
 
   els.file.addEventListener('change', (e) => {
     const file = e.target.files?.[0];
@@ -71,7 +80,9 @@ function init() {
     if (file) loadFile(file);
   });
 
-  els.run.addEventListener('click', process);
+  [els.optEmbed, els.optSvgo, els.optStrip].forEach((cb) =>
+    cb.addEventListener('change', () => { if (currentSvg) process(); }),
+  );
   els.download.addEventListener('click', download);
 }
 
@@ -85,11 +96,13 @@ async function loadFile(file) {
     log('err', `"${file.name}" does not appear to be a valid SVG file.`);
     return;
   }
+  sourceName = file.name;
   currentName = file.name.replace(/\.svg$/i, '') + '.web.svg';
   setInput(text);
 }
 
 async function loadSample(sample) {
+  sourceName = sample.file;
   currentName = sample.file.replace(/\.svg$/i, '') + '.web.svg';
   // Honor Vite's `base` config so this works under a subpath deploy (e.g. /svgomg-font/).
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -101,14 +114,14 @@ async function loadSample(sample) {
 function setInput(text) {
   currentSvg = text;
   processedSvg = null;
-  els.run.disabled = false;
-  els.download.disabled = true;
+  els.download.hidden = true;
+  els.loadedName.textContent = sourceName;
   renderInto(els.before, text);
   els.beforeMeta.textContent = describe(text);
   els.after.innerHTML = '';
   els.afterMeta.textContent = '';
-  log('info', 'Loaded SVG. Click Process to embed fonts.');
   document.body.classList.add('has-file');
+  process();
 }
 
 function describe(text) {
@@ -126,55 +139,64 @@ function describe(text) {
 
 async function process() {
   if (!currentSvg) return;
-  els.run.disabled = true;
-  log('info', 'Processing...');
+  const myRunId = ++runId;
+  const opts = { embed: els.optEmbed.checked, svgo: els.optSvgo.checked, strip: els.optStrip.checked };
+  log('info', 'Processing…');
 
   let out = currentSvg;
   const lines = [];
 
-  if (els.optStrip.checked && hasDeprecatedSvgFonts(out)) {
-    const before = out.length;
-    out = stripDeprecatedSvgFonts(out);
-    lines.push(`Stripped deprecated <font> blocks (-${(before - out.length).toLocaleString()} bytes).`);
-  }
-
-  if (els.optEmbed.checked) {
-    const families = extractFontFamilies(out);
-    if (!families.length) {
-      lines.push('No font-family declarations found — nothing to embed.');
-    } else {
-      lines.push(`Resolving ${families.length} font${families.length === 1 ? '' : 's'} via Fontsource...`);
-      const results = await Promise.all(families.map(fetchFontAsBase64));
-      const fonts = [];
-      for (let i = 0; i < families.length; i++) {
-        const r = results[i];
-        if (r) {
-          fonts.push(r);
-          lines.push(`  ✓ ${families[i]} (${r.bytes.toLocaleString()} bytes raw)`);
-        } else {
-          lines.push(`  ✗ ${families[i]} — not found on Fontsource`);
-        }
-      }
-      out = embedFontFaces(out, fonts);
-    }
-  }
-
-  if (els.optSvgo.checked) {
-    try {
+  try {
+    if (opts.strip && hasDeprecatedSvgFonts(out)) {
       const before = out.length;
-      out = await svgoPass(out);
-      lines.push(`SVGO: ${before.toLocaleString()} → ${out.length.toLocaleString()} bytes.`);
-    } catch (err) {
-      lines.push(`SVGO failed: ${err.message}`);
+      out = stripDeprecatedSvgFonts(out);
+      lines.push(`Stripped deprecated <font> blocks (-${(before - out.length).toLocaleString()} bytes).`);
     }
-  }
 
-  processedSvg = out;
-  renderInto(els.after, out);
-  els.afterMeta.textContent = describe(out);
-  els.download.disabled = false;
-  els.run.disabled = false;
-  log('ok', lines.join('\n'));
+    if (opts.embed) {
+      const families = extractFontFamilies(out);
+      if (!families.length) {
+        lines.push('No font-family declarations found — nothing to embed.');
+      } else {
+        lines.push(`Resolving ${families.length} font${families.length === 1 ? '' : 's'} via Fontsource…`);
+        const results = await Promise.all(families.map((f) => {
+          if (!fontCache.has(f)) fontCache.set(f, fetchFontAsBase64(f));
+          return fontCache.get(f);
+        }));
+        const fonts = [];
+        for (let i = 0; i < families.length; i++) {
+          const r = results[i];
+          if (r) {
+            fonts.push(r);
+            lines.push(`  ✓ ${families[i]} (${r.bytes.toLocaleString()} bytes raw)`);
+          } else {
+            lines.push(`  ✗ ${families[i]} — not found on Fontsource`);
+          }
+        }
+        out = embedFontFaces(out, fonts);
+      }
+    }
+
+    if (opts.svgo) {
+      try {
+        const before = out.length;
+        out = await svgoPass(out);
+        lines.push(`SVGO: ${before.toLocaleString()} → ${out.length.toLocaleString()} bytes.`);
+      } catch (err) {
+        lines.push(`SVGO failed: ${err.message}`);
+      }
+    }
+
+    if (runId !== myRunId) return;
+    processedSvg = out;
+    renderInto(els.after, out);
+    els.afterMeta.textContent = describe(out);
+    els.download.hidden = false;
+    log('ok', lines.join('\n'));
+  } catch (err) {
+    if (runId !== myRunId) return;
+    log('err', `Processing failed: ${err.message}`);
+  }
 }
 
 function renderInto(node, text) {
