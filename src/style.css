@@ -461,6 +461,15 @@ body.has-file #close-btn { display: flex; }
 .hud-report .warn { color: #fbbf24; }
 .hud-report .err { color: #f87171; }
 .hud-report:empty { display: none; }
+.hud-report a { color: #a78bfa; text-decoration: underline; text-underline-offset: 2px; }
+.hud-report a:hover { color: #c4b5fd; }
+.hud-report code {
+  background: rgba(255,255,255,.12);
+  color: rgba(255,255,255,.8);
+  padding: 0 .28em;
+  border-radius: 3px;
+  font-family: inherit;
+}
 
 .hud-download {
   width: 100%;

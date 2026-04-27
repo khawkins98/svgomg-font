@@ -198,6 +198,7 @@ async function process() {
 
   let out = currentSvg;
   const lines = [];
+  let noFontFound = false;
 
   try {
     if (opts.strip && hasDeprecatedSvgFonts(out)) {
@@ -209,7 +210,7 @@ async function process() {
     if (opts.embed) {
       const families = extractFontFamilies(out);
       if (!families.length) {
-        lines.push('No font-family declarations found — nothing to embed.');
+        noFontFound = true;
       } else {
         lines.push(`Resolving ${families.length} font${families.length === 1 ? '' : 's'} via Fontsource…`);
         const results = await Promise.all(families.map((f) => {
@@ -245,7 +246,25 @@ async function process() {
     renderInto(els.after, out);
     els.afterMeta.textContent = describe(out);
     els.download.hidden = false;
-    log('ok', lines.join('\n'));
+
+    if (noFontFound) {
+      // Rich warning — this SVG has no fonts for us to fix
+      els.report.innerHTML = '';
+      const warn = document.createElement('span');
+      warn.className = 'warn';
+      warn.innerHTML =
+        'No <code>font-family</code> declarations found — this SVG has no fonts to embed.\n' +
+        'Wrong tool? If you just need to optimise an SVG, try ' +
+        '<a href="https://svgomg.net/" target="_blank" rel="noreferrer">SVGOMG →</a>';
+      els.report.appendChild(warn);
+      if (lines.length) {
+        const extra = document.createElement('span');
+        extra.textContent = '\n' + lines.join('\n');
+        els.report.appendChild(extra);
+      }
+    } else {
+      log('ok', lines.join('\n'));
+    }
   } catch (err) {
     if (runId !== myRunId) return;
     log('err', `Processing failed: ${err.message}`);
