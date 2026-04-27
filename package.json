@@ -1,0 +1,19 @@
+{
+  "name": "svgomg-font",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Drop in an SVG, embed its web fonts as base64 woff2, optionally optimize with SVGO. All client-side.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node scripts/launch.mjs"
+  },
+  "devDependencies": {
+    "vite": "^5.4.10"
+  },
+  "dependencies": {
+    "svgo": "^3.3.2"
+  }
+}

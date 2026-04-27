@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 200">
+  <rect width="420" height="200" fill="#1a1a1a"/>
+  <text x="30" y="60" font-family="Lato-Bold" font-size="28" fill="#fff">Q3 results</text>
+  <text x="30" y="92" font-family="Lato-Regular" font-size="14" fill="#aaa">
+    Revenue grew 24% year over year, driven by enterprise renewals.
+  </text>
+  <text x="30" y="140" font-family="Lato-Bold" font-size="44" fill="#1fb7b3">$48.2M</text>
+  <text x="30" y="170" font-family="Lato-Regular" font-size="12" fill="#aaa">vs $38.9M same period last year</text>
+</svg>

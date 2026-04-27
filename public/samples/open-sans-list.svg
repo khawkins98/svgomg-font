@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 220">
+  <style><![CDATA[
+    text { font-family: "Open Sans"; fill: #1a1a1a; }
+    .title { font-size: 18px; font-weight: 700; }
+    .item { font-size: 13px; }
+    .num { font-family: "Open Sans"; font-weight: 700; fill: #b83395; }
+  ]]></style>
+  <rect width="360" height="220" fill="#fafafa"/>
+  <text x="20" y="36" class="title">Top regions by readership</text>
+  <text x="20" y="72" class="item"><tspan class="num">1.</tspan> South Asia</text>
+  <text x="20" y="96" class="item"><tspan class="num">2.</tspan> East Asia &amp; Pacific</text>
+  <text x="20" y="120" class="item"><tspan class="num">3.</tspan> Latin America &amp; Caribbean</text>
+  <text x="20" y="144" class="item"><tspan class="num">4.</tspan> Sub-Saharan Africa</text>
+  <text x="20" y="168" class="item"><tspan class="num">5.</tspan> Europe &amp; Central Asia</text>
+  <text x="20" y="200" font-size="10" fill="#707070">Source: site analytics, 2024</text>
+</svg>

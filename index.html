@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SVGOMG-Font — embed web fonts in SVG</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>SVGOMG-Font</h1>
+      <p class="tagline">
+        Drop an SVG. Pull its <code>font-family</code> references in as base64 woff2 so the
+        text renders anywhere — even inside an <code>&lt;img&gt;</code> tag. Optional
+        SVGO pass to strip the cruft.
+      </p>
+    </header>
+
+    <main>
+      <section class="controls">
+        <div class="dropzone" id="dropzone">
+          <p><strong>Drop an SVG here</strong> or</p>
+          <label class="file-button">
+            Choose file
+            <input type="file" id="file-input" accept=".svg,image/svg+xml" />
+          </label>
+          <p class="or">or pick a sample:</p>
+          <div class="samples" id="samples"></div>
+        </div>
+
+        <div class="options">
+          <label>
+            <input type="checkbox" id="opt-embed" checked />
+            Embed fonts as base64 woff2
+          </label>
+          <label>
+            <input type="checkbox" id="opt-svgo" />
+            Optimize with SVGO
+          </label>
+          <label>
+            <input type="checkbox" id="opt-strip-svg-fonts" checked />
+            Strip deprecated <code>&lt;font&gt;</code> blocks
+          </label>
+          <button id="run" disabled>Process</button>
+          <button id="download" disabled>Download</button>
+        </div>
+
+        <div class="report" id="report"></div>
+      </section>
+
+      <section class="previews">
+        <div class="preview">
+          <h2>Before</h2>
+          <div class="frame" id="before"></div>
+          <div class="meta" id="before-meta"></div>
+        </div>
+        <div class="preview">
+          <h2>After</h2>
+          <div class="frame" id="after"></div>
+          <div class="meta" id="after-meta"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        Fonts pulled from
+        <a href="https://fontsource.org/" target="_blank" rel="noreferrer">Fontsource</a>
+        via
+        <a href="https://www.jsdelivr.com/" target="_blank" rel="noreferrer">jsDelivr</a>.
+        Optimization by
+        <a href="https://svgo.dev/" target="_blank" rel="noreferrer">SVGO</a>. All
+        processing happens in your browser.
+      </p>
+    </footer>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240">
+  <style><![CDATA[
+    .bg { fill: #1fb7b3; }
+    .card { fill: #fff; }
+    .h { font-family: Roboto-Bold; font-size: 22px; fill: #1a1a1a; }
+    .p { font-family: Roboto-Regular; font-size: 12px; fill: #707070; }
+    .stat { font-family: Roboto-Bold; font-size: 32px; fill: #ed8b00; }
+  ]]></style>
+  <!-- Mimics the deprecated SVG-font glyph block some editors emit. -->
+  <font horiz-adv-x="2048"><font-face units-per-em="2048" class="placeholder"/></font>
+  <rect class="bg" width="400" height="60"/>
+  <rect class="card" x="0" y="60" width="400" height="180"/>
+  <text x="20" y="38" class="h" fill="#fff">Search &amp; Subscribers</text>
+  <text x="20" y="110" class="stat">212M</text>
+  <text x="20" y="130" class="h">Google Search impressions</text>
+  <text x="20" y="148" class="p">PreventionWeb alone</text>
+  <text x="20" y="190" class="stat">429,844</text>
+  <text x="20" y="210" class="h">LinkedIn newsletter subscribers</text>
+  <text x="20" y="228" class="p">4.6M article views</text>
+</svg>
