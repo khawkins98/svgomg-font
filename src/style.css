@@ -287,10 +287,13 @@ body.has-file .split-view { display: block; }
   border: 1px solid rgba(255,255,255,.12);
   pointer-events: none;
 }
+/* Shift "Before" label right of the × close button (40px wide at left:1.25rem) */
+.before-pane .pane-label { left: calc(1.25rem + 40px + 0.6rem); }
 
 .pane-meta {
   position: absolute;
-  bottom: 1rem;
+  top: 3rem;   /* below the pane-label — away from the bottom HUDs */
+  bottom: auto;
   left: 50%;
   transform: translateX(-50%);
   z-index: 5;
