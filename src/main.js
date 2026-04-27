@@ -67,8 +67,16 @@ function init() {
 }
 
 async function loadFile(file) {
-  currentName = file.name.replace(/\.svg$/i, '') + '.web.svg';
+  if (!/\.svg$/i.test(file.name)) {
+    log('err', `"${file.name}" is not an SVG file. Only .svg files are accepted.`);
+    return;
+  }
   const text = await file.text();
+  if (!/<svg[\s>]/i.test(text)) {
+    log('err', `"${file.name}" does not appear to be a valid SVG file.`);
+    return;
+  }
+  currentName = file.name.replace(/\.svg$/i, '') + '.web.svg';
   setInput(text);
 }
 
