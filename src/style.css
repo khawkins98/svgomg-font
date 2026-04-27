@@ -121,14 +121,23 @@ body.has-file main {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg);
+  /* match header: dark band, subtle checkered */
+  background-color: #1a0f2e;
   background-image:
-    linear-gradient(45deg, var(--border) 25%, transparent 25%),
-    linear-gradient(-45deg, var(--border) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, var(--border) 75%),
-    linear-gradient(-45deg, transparent 75%, var(--border) 75%);
+    linear-gradient(45deg, rgba(255,255,255,.04) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255,255,255,.04) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255,255,255,.04) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255,255,255,.04) 75%);
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+  /* angled bottom cut — diagonal "band sweep" */
+  padding-bottom: 22vw;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 22vw), 0 100%);
+}
+
+/* Remove header's bottom border so it merges into the dark upload strip */
+body:not(.has-file) header {
+  border-bottom: none;
 }
 
 body.has-file { height: 100vh; overflow: hidden; }
