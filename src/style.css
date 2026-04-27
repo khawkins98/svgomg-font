@@ -1,10 +1,10 @@
 :root {
-  --bg: #fafafa;
-  --fg: #1a1a1a;
-  --muted: #707070;
-  --accent: #1fb7b3;
-  --accent-2: #ed8b00;
-  --border: #e0e0e0;
+  --bg: #f5f3ff;
+  --fg: #1c1033;
+  --muted: #6b6580;
+  --accent: #7c3aed;
+  --accent-2: #c2410c;
+  --border: #e4e0f5;
   --card: #fff;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color-scheme: light;
@@ -20,14 +20,46 @@ body {
 }
 
 header {
-  padding: 1.75rem 2rem 1rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--card);
+  padding: 1.75rem 2rem 1.25rem;
+  border-bottom: 1px solid rgba(0,0,0,.15);
+  background: linear-gradient(135deg, #1a0f2e 0%, #2e1065 100%);
+  color: #fff;
 }
-header h1 { margin: 0 0 .25rem; font-size: 1.5rem; }
-.tagline { margin: 0; color: var(--muted); max-width: 70ch; }
+header h1 {
+  margin: 0 0 .35rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  color: #fff;
+}
+.brand-omg { color: #a78bfa; }
+.tagline { margin: 0; color: rgba(255,255,255,.78); max-width: 65ch; font-size: .95rem; }
+header code {
+  background: rgba(255,255,255,.14);
+  color: rgba(255,255,255,.92);
+  padding: 0 .28em;
+  border-radius: 3px;
+  font-size: .88em;
+}
+.badges {
+  display: flex;
+  gap: .45rem;
+  flex-wrap: wrap;
+  margin-top: .85rem;
+}
+.badge {
+  font-size: .73rem;
+  font-weight: 500;
+  padding: .18rem .6rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.82);
+  border: 1px solid rgba(255,255,255,.2);
+  letter-spacing: .01em;
+}
 code {
-  background: #f0f0f0;
+  background: #ede9fe;
+  color: #5b21b6;
   padding: 0 .25em;
   border-radius: 3px;
   font-size: .9em;
@@ -56,7 +88,7 @@ main {
   text-align: center;
   transition: border-color .15s, background .15s;
 }
-.dropzone.drag { border-color: var(--accent); background: #f0fafa; }
+.dropzone.drag { border-color: var(--accent); background: #ede9fe; }
 .dropzone p { margin: .25rem 0; }
 .dropzone .or { color: var(--muted); font-size: .9em; margin-top: 1rem; }
 
@@ -109,7 +141,18 @@ main {
   font-weight: 600;
 }
 .options button:disabled { background: #ccc; cursor: not-allowed; }
+.options button:not(:disabled):hover { filter: brightness(1.1); }
 .options button#download { background: var(--accent-2); }
+
+button:focus-visible,
+.file-button:focus-visible {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 2px;
+}
+input[type="checkbox"]:focus-visible {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 1px;
+}
 
 .report {
   background: var(--card);

@@ -3,17 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SVGOMG-Font — embed web fonts in SVG</title>
+    <title>SVGOMG-Font — embed fonts in SVG</title>
+    <meta name="description" content="Drop an SVG with font references. Get back one with the fonts embedded as base64 woff2 — renders reliably in any browser, even inside an &lt;img&gt; tag." />
+    <meta property="og:title" content="SVGOMG-Font — embed fonts in SVG" />
+    <meta property="og:description" content="Drop an SVG with font references. Get back one with the fonts embedded as base64 woff2 — renders reliably in any browser, even inside an &lt;img&gt; tag." />
+    <meta property="og:type" content="website" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <header>
-      <h1>SVGOMG-Font</h1>
+      <h1>SVG<span class="brand-omg">OMG</span>-Font</h1>
       <p class="tagline">
-        Drop an SVG. Pull its <code>font-family</code> references in as base64 woff2 so the
-        text renders anywhere — even inside an <code>&lt;img&gt;</code> tag. Optional
-        SVGO pass to strip the cruft.
+        Drop an SVG with font references. Get back one that renders reliably
+        in any browser — even inside an <code>&lt;img&gt;</code> tag.
+        Optional SVGO optimization included.
       </p>
+      <div class="badges">
+        <span class="badge">SVG stays in your browser</span>
+        <span class="badge">Fonts fetched from Fontsource CDN</span>
+        <span class="badge">Google Fonts catalog</span>
+      </div>
     </header>
 
     <main>

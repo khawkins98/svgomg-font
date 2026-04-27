@@ -1,9 +1,13 @@
 # SVGOMG-Font
 
-Drop in an SVG, get back the same SVG with its web fonts inlined as base64
-woff2 — so the text actually renders when the file is used as an `<img>`,
-emailed around, or hosted somewhere the original font isn't installed.
-Optional [SVGO](https://svgo.dev/) pass strips the editor cruft on the way out.
+**Stop shipping SVGs with broken text.**
+
+Drop in an SVG that references web fonts. Get back the same SVG with those
+fonts embedded as base64 woff2 — so the text renders reliably in any browser,
+including when the file is used as an `<img>`, emailed around, or opened on a
+machine without the original font installed.
+
+Optional [SVGO](https://svgo.dev/) pass strips editor cruft on the way out.
 
 Plays on [SVGOMG](https://jakearchibald.github.io/svgomg/), which is great at
 optimizing but doesn't touch fonts.
@@ -13,10 +17,9 @@ Everything runs in the browser. No upload, no backend.
 ## Why this exists
 
 A lot of design tools (Figma exports, Vecta Nano, Illustrator, Inkscape) emit
-SVGs that reference fonts by name — `font-family: Roboto-Bold` etc. — without
+SVGs that reference fonts by name — `font-family: Roboto-Bold` — without
 embedding them. Some emit deprecated SVG `<font>` glyph blocks that no modern
-browser renders. Either way, the file looks fine on the designer's machine and
-broken everywhere else.
+browser renders. The file looks fine in your editor and broken everywhere else.
 
 This tool fixes both:
 
