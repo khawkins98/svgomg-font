@@ -102,7 +102,9 @@ body.has-file main {
   background-position: 0 0, 0 10px, 10px -10px, -10px 0;
 }
 
+body.has-file { height: 100vh; overflow: hidden; }
 body.has-file .upload-strip { display: none; }
+body.has-file .wave-section { display: none; }
 body.has-file footer { display: none; }
 body.has-file .tagline,
 body.has-file .badges { display: none; }
@@ -208,12 +210,12 @@ body:not(.has-file) .file-button:hover { background: rgba(255,255,255,.32); }
   overflow: hidden;
   --split: 50%;
 }
-body.has-file .split-view { display: flex; }
+body.has-file .split-view { display: block; }
 
 .before-pane,
 .after-pane {
-  position: relative;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -228,12 +230,18 @@ body.has-file .split-view { display: flex; }
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0;
 }
+/* Before-pane stacks on top and clips to the left of the split handle */
 .before-pane {
-  flex: none;
-  width: var(--split);
-  border-right: 1px solid rgba(255,255,255,.1);
+  z-index: 2;
+  clip-path: inset(0 calc(100% - var(--split)) 0 0);
 }
-.after-pane { flex: 1; min-width: 0; }
+.after-pane { z-index: 1; }
+
+/* Keep after-pane label visible in the right half */
+.after-pane .pane-label { left: calc(var(--split) + 1rem); }
+/* Center pane-meta within each pane's visible portion */
+.before-pane .pane-meta { left: calc(var(--split) / 2); }
+.after-pane .pane-meta  { left: calc((var(--split) + 100%) / 2); }
 
 .frame {
   background: none;
