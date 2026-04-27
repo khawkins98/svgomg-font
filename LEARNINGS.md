@@ -128,6 +128,28 @@ fonts and read TTF data. It's:
 Could be a "use what's installed" mode later, but the Fontsource path
 covers 95% of real-world cases without the permission friction.
 
+## A loose regex eats minified CSS for breakfast
+
+First cut of the `font-family` extractor used:
+
+```js
+/font-family\s*[:=]\s*(["']?)([^;"'<>]+)\1/g
+```
+
+Against compact CSS like:
+
+```css
+.l{font-family:Roboto-Bold}.m{font-family:Roboto-Regular}.n{fill:#2d2d2d}
+```
+
+…that captures `Roboto-Bold}.m{font-family:Roboto-Regular` as a single
+"family name." Looks fine when families are well-spaced or in attributes;
+falls apart on the kind of compact output Vecta Nano / Illustrator emit.
+
+Fix is one character: add `{}` to the negated set so capture stops at
+rule boundaries. Worth always doing — there's no valid font name with
+braces in it.
+
 ## Conventional Commits + small repos
 
 Even tiny repos benefit from a stated commit convention from day one. It

@@ -74,7 +74,9 @@ async function loadFile(file) {
 
 async function loadSample(sample) {
   currentName = sample.file.replace(/\.svg$/i, '') + '.web.svg';
-  const res = await fetch(`/samples/${sample.file}`);
+  // Honor Vite's `base` config so this works under a subpath deploy (e.g. /svgomg-font/).
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const res = await fetch(`${base}/samples/${sample.file}`);
   const text = await res.text();
   setInput(text);
 }
