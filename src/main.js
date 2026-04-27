@@ -99,6 +99,7 @@ function setInput(text) {
   els.after.innerHTML = '';
   els.afterMeta.textContent = '';
   log('info', 'Loaded SVG. Click Process to embed fonts.');
+  document.body.classList.add('has-file');
 }
 
 function describe(text) {

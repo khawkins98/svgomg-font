@@ -66,19 +66,49 @@ code {
 }
 
 main {
-  display: grid;
-  grid-template-columns: 380px 1fr;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 1.5rem;
-  padding: 1.5rem 2rem;
+  padding: 3rem 2rem 2rem;
   max-width: 1400px;
   margin: 0 auto;
 }
 
-@media (max-width: 800px) {
-  main { grid-template-columns: 1fr; }
+body.has-file main {
+  align-items: stretch;
+  padding: 1.25rem 2rem;
 }
 
-.controls { display: flex; flex-direction: column; gap: 1.25rem; }
+.upload-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: 100%;
+  max-width: 540px;
+}
+
+body.has-file .upload-strip {
+  flex-direction: row;
+  align-items: flex-start;
+  max-width: none;
+  gap: 1.5rem;
+}
+
+body.has-file .dropzone {
+  flex: 0 1 300px;
+  min-height: 0;
+}
+
+body.has-file .options {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 700px) {
+  body.has-file .upload-strip { flex-direction: column; }
+  body.has-file .dropzone { flex: none; }
+}
 
 .dropzone {
   border: 2px dashed var(--border);
@@ -173,6 +203,13 @@ main {
 .options button#download { background: var(--accent-2); }
 .options button#download:disabled { background: #ccc; }
 
+.actions {
+  display: flex;
+  gap: .5rem;
+  margin-top: .25rem;
+}
+.actions button { flex: 1; margin-top: 0; }
+
 button:focus-visible,
 .file-button:focus-visible {
   outline: 2.5px solid var(--accent);
@@ -184,6 +221,7 @@ input[type="checkbox"]:focus-visible {
 }
 
 .report {
+  display: none;
   background: var(--card);
   padding: .75rem 1rem;
   border-radius: 8px;
@@ -191,9 +229,9 @@ input[type="checkbox"]:focus-visible {
   font-size: .85rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   white-space: pre-wrap;
-  min-height: 4rem;
   color: var(--muted);
 }
+body.has-file .report { display: block; }
 .report:empty::before {
   content: 'No output yet.';
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -207,11 +245,19 @@ input[type="checkbox"]:focus-visible {
 .report .err { color: #c0392b; }
 
 .previews {
+  display: none;
+}
+
+body.has-file .previews {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
+  width: 100%;
 }
-@media (max-width: 1100px) { .previews { grid-template-columns: 1fr; } }
+
+@media (max-width: 1000px) {
+  body.has-file .previews { grid-template-columns: 1fr; }
+}
 
 .preview h2 {
   margin: 0 0 .65rem;
