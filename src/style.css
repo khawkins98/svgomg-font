@@ -23,6 +23,7 @@ body {
 }
 
 header {
+  position: relative;
   padding: 1.75rem 2rem 1.25rem;
   border-bottom: 1px solid rgba(0,0,0,.15);
   background: linear-gradient(135deg, #1a0f2e 0%, #2e1065 100%);
@@ -364,6 +365,79 @@ body.has-file .previews {
   color: var(--muted);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
+
+/* ── about button ── */
+.about-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.25);
+  color: rgba(255,255,255,.85);
+  border-radius: 999px;
+  padding: .3rem .85rem;
+  font-size: .82rem;
+  cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.about-btn:hover { background: rgba(255,255,255,.22); color: #fff; }
+
+/* ── about dialog ── */
+#about-dialog {
+  border: none;
+  border-radius: 12px;
+  padding: 2rem 2.25rem 2.25rem;
+  max-width: 560px;
+  width: calc(100vw - 3rem);
+  background: var(--card);
+  color: var(--fg);
+  box-shadow: 0 24px 80px rgba(0,0,0,.35);
+  position: relative;
+}
+#about-dialog::backdrop {
+  background: rgba(10,5,20,.6);
+  backdrop-filter: blur(3px);
+}
+#about-dialog h2 {
+  margin: 0 0 1rem;
+  font-size: 1.2rem;
+  color: var(--accent);
+}
+#about-dialog h3 {
+  margin: 1.4rem 0 .4rem;
+  font-size: .9rem;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  color: var(--muted);
+}
+#about-dialog p { margin: 0 0 .75rem; line-height: 1.6; }
+#about-dialog ul, #about-dialog ol {
+  margin: 0 0 .75rem;
+  padding-left: 1.4rem;
+  line-height: 1.7;
+}
+#about-dialog li { margin-bottom: .3rem; }
+#about-dialog code {
+  background: #ede9fe;
+  color: var(--accent);
+  padding: .1em .35em;
+  border-radius: 3px;
+  font-size: .88em;
+}
+.dialog-close {
+  position: absolute;
+  top: .85rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: var(--muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: .2rem .4rem;
+  border-radius: 4px;
+}
+.dialog-close:hover { color: var(--fg); background: var(--border); }
 
 /* ── wave + samples section ── */
 .wave-section { flex-shrink: 0; }

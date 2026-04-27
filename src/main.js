@@ -19,6 +19,9 @@ const els = {
   beforeMeta: $('#before-meta'),
   afterMeta: $('#after-meta'),
   report: $('#report'),
+  aboutBtn: $('#about-btn'),
+  aboutDialog: $('#about-dialog'),
+  aboutClose: $('#about-close'),
 };
 
 const SAMPLES = [
@@ -40,24 +43,30 @@ function init() {
     els.samples.appendChild(btn);
   }
 
+  els.aboutBtn.addEventListener('click', () => els.aboutDialog.showModal());
+  els.aboutClose.addEventListener('click', () => els.aboutDialog.close());
+  els.aboutDialog.addEventListener('click', (e) => {
+    if (e.target === els.aboutDialog) els.aboutDialog.close();
+  });
+
   els.file.addEventListener('change', (e) => {
     const file = e.target.files?.[0];
     if (file) loadFile(file);
   });
 
   ['dragenter', 'dragover'].forEach((ev) =>
-    els.drop.addEventListener(ev, (e) => {
+    document.addEventListener(ev, (e) => {
       e.preventDefault();
       els.drop.classList.add('drag');
     }),
   );
   ['dragleave', 'drop'].forEach((ev) =>
-    els.drop.addEventListener(ev, (e) => {
+    document.addEventListener(ev, (e) => {
       e.preventDefault();
       els.drop.classList.remove('drag');
     }),
   );
-  els.drop.addEventListener('drop', (e) => {
+  document.addEventListener('drop', (e) => {
     const file = e.dataTransfer?.files?.[0];
     if (file) loadFile(file);
   });

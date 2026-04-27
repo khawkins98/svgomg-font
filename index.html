@@ -3,25 +3,26 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SVGOMG-Font — embed fonts in SVG</title>
-    <meta name="description" content="Drop an SVG with font references. Get back one with the fonts embedded as base64 woff2 — renders reliably in any browser, even inside an &lt;img&gt; tag." />
-    <meta property="og:title" content="SVGOMG-Font — embed fonts in SVG" />
-    <meta property="og:description" content="Drop an SVG with font references. Get back one with the fonts embedded as base64 woff2 — renders reliably in any browser, even inside an &lt;img&gt; tag." />
+    <title>SVGOMG-Font — fix broken SVG fonts</title>
+    <meta name="description" content="&quot;OMG, my SVG fonts are broken!&quot; Drop your SVG here — get back one with fonts embedded as base64 woff2, so it renders perfectly everywhere, even inside an &lt;img&gt; tag." />
+    <meta property="og:title" content="SVGOMG-Font — fix broken SVG fonts" />
+    <meta property="og:description" content="&quot;OMG, my SVG fonts are broken!&quot; Drop your SVG here — get back one with fonts embedded as base64 woff2, so it renders perfectly everywhere, even inside an &lt;img&gt; tag." />
     <meta property="og:type" content="website" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <header>
       <h1>SVG<span class="brand-omg">OMG</span>-Font</h1>
+      <button class="about-btn" id="about-btn" aria-haspopup="dialog">About</button>
       <p class="tagline">
-        Drop an SVG with font references. Get back one that renders reliably
-        in any browser — even inside an <code>&lt;img&gt;</code> tag.
-        Optional SVGO optimization included.
+        <em>"OMG, my SVG fonts aren't rendering!"</em>
+        Drop the culprit here — get back one with fonts embedded as base64 woff2
+        so it works anywhere, even inside an <code>&lt;img&gt;</code> tag.
       </p>
       <div class="badges">
-        <span class="badge">SVG stays in your browser</span>
-        <span class="badge">Fonts fetched from Fontsource CDN</span>
-        <span class="badge">Google Fonts catalog</span>
+        <span class="badge">Fonts embedded, not just referenced</span>
+        <span class="badge">Works inside &lt;img&gt; tags</span>
+        <span class="badge">Runs entirely in your browser</span>
       </div>
     </header>
 
@@ -33,7 +34,7 @@
             <line x1="12" y1="12" x2="12" y2="21"></line>
             <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
           </svg>
-          <p><strong>Drop an SVG</strong> or paste</p>
+          <p><strong>Drop the culprit</strong></p>
           <label class="file-button">
             Choose file
             <input type="file" id="file-input" accept=".svg,image/svg+xml" />
@@ -67,7 +68,7 @@
           <path d="M0,40 C200,90 480,10 720,50 C960,90 1200,15 1440,55 L1440,100 L0,100 Z" fill="#1a0f2e"/>
         </svg>
         <div class="samples-area">
-          <p class="samples-label">Or try one of these:</p>
+          <p class="samples-label">Or confess with a broken sample:</p>
           <div class="samples" id="samples"></div>
         </div>
       </div>
@@ -99,6 +100,56 @@
         processing happens in your browser.
       </p>
     </footer>
+
+    <dialog id="about-dialog" aria-labelledby="about-title">
+      <button class="dialog-close" id="about-close" aria-label="Close">&#x2715;</button>
+      <h2 id="about-title">Why does this exist?</h2>
+
+      <p>
+        SVGs reference fonts by name — <code>font-family: "Inter"</code> — and rely on
+        the environment to resolve them at render time. That's fine in a web page.
+        Everywhere else, it silently breaks.
+      </p>
+
+      <h3>The culprits</h3>
+      <ul>
+        <li>
+          <strong>Inside <code>&lt;img&gt;</code> tags</strong> — browsers intentionally
+          sandbox SVG images, blocking <em>all</em> external requests. Font references
+          go nowhere. This is a security boundary, not a bug.
+        </li>
+        <li>
+          <strong>Figma, Illustrator, email, Slack</strong> — no Google Fonts, no CDN,
+          no CSS cascade. The font name is a dead string pointing at nothing.
+        </li>
+        <li>
+          <strong>As standalone files</strong> — <code>@font-face</code> with an external
+          URL only works when an SVG is inlined in HTML. As a file, CORS kills it.
+        </li>
+        <li>
+          <strong>The deprecated <code>&lt;font&gt;</code> element</strong> — SVG's own
+          font format only ever supported pre-outlined glyphs baked at authoring time.
+          Browsers have been quietly dropping support for years.
+        </li>
+      </ul>
+
+      <h3>The only portable fix</h3>
+      <p>
+        Embed the font binary <em>directly</em> inside the SVG — base64-encoded in an
+        <code>@font-face src</code> data URI. No network request, no CORS, no missing
+        file. Just a slightly larger SVG that actually works anywhere.
+      </p>
+
+      <h3>Why it's tedious by hand</h3>
+      <ol>
+        <li>Identify every font family, weight, and style used in the file</li>
+        <li>Track down the right <code>.woff2</code> from a CDN or your system</li>
+        <li>Base64-encode the binary</li>
+        <li>Inject a valid <code>@font-face</code> block into the SVG's <code>&lt;defs&gt;</code></li>
+        <li>Strip any now-redundant <code>&lt;font&gt;</code> elements</li>
+      </ol>
+      <p>SVGOMG-Font does all of that in your browser, in seconds.</p>
+    </dialog>
 
     <script type="module" src="/src/main.js"></script>
   </body>
