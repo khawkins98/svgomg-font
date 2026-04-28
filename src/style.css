@@ -664,7 +664,7 @@ body.has-file .wave-section { display: none; }
 .wave-svg { display: block; width: 100%; margin-bottom: -1px; }
 .samples-area {
   background: #1a0f2e;
-  padding: 1.75rem 2rem 3rem;
+  padding: 1.75rem 2rem calc(3rem + 64px);
   text-align: center;
 }
 .samples-label {
@@ -676,15 +676,24 @@ body.has-file .wave-section { display: none; }
 /* ── feature cards (Squoosh-inspired) ── */
 .features-section {
   flex-shrink: 0;
-  background: #1a0f2e; /* dark behind the top wave */
+  position: relative;
+  z-index: 5; /* slides over the fixed wave */
 }
 body.has-file .features-section { display: none; }
 
+/* wave ribbon — fixed to viewport bottom */
 .wave-features-top {
-  display: block;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   width: 100%;
-  margin-bottom: -1px;
+  height: 64px;
+  background: #1a0f2e;
+  z-index: 4;
+  pointer-events: none;
 }
+body.has-file .wave-features-top { display: none; }
 
 .features-inner {
   background: var(--bg);
