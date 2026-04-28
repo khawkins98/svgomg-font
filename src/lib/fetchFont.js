@@ -44,9 +44,12 @@ export function parseFamily(name) {
     }
   }
   if (tokens.length > 1) {
-    const last = tokens[tokens.length - 1].toLowerCase();
-    if (WEIGHT_KEYWORDS[last] !== undefined) {
-      weight = WEIGHT_KEYWORDS[last];
+    // Strip PostScript suffixes (always uppercase: PSMT, MT, PS) before weight lookup
+    // so "BoldMT" is recognised as "Bold", "BoldPS" as "Bold", etc.
+    const rawLast = tokens[tokens.length - 1];
+    const cleanLast = rawLast.replace(/PSMT$|MT$|PS$/, '').toLowerCase();
+    if (WEIGHT_KEYWORDS[cleanLast] !== undefined) {
+      weight = WEIGHT_KEYWORDS[cleanLast];
       tokens.pop();
     }
   }
@@ -55,6 +58,19 @@ export function parseFamily(name) {
   }
 
   return { base, weight, italic };
+}
+
+/**
+ * Normalise a PostScript-style font name to a human-readable family name.
+ * "CourierNewPSMT"  → "Courier New"
+ * "HelveticaNeue"   → "Helvetica Neue"
+ * "TimesNewRoman"   → "Times New Roman"
+ */
+export function normalizePostScriptName(name) {
+  // Strip uppercase PostScript suffixes (PSMT, MT, PS) — they're always uppercase
+  const stripped = name.replace(/PSMT$|MT$|PS$/, '');
+  // Split CamelCase words and trim any stray spaces
+  return stripped.replace(/([A-Z][a-z]+)/g, ' $1').trim().replace(/\s+/g, ' ');
 }
 
 function fontsourceSlug(base) {

@@ -1,5 +1,5 @@
 import { extractFontFamilies, extractFontFaces, hasDeprecatedSvgFonts, stripDeprecatedSvgFonts } from './lib/parseSvg.js';
-import { fetchFontAsBase64, parseFamily } from './lib/fetchFont.js';
+import { fetchFontAsBase64, parseFamily, normalizePostScriptName } from './lib/fetchFont.js';
 import { embedFontFaces } from './lib/embedFonts.js';
 import { svgoPass } from './lib/optimize.js';
 
@@ -949,7 +949,13 @@ async function tryLocalFonts(allFaces, missingFamilies) {
   const toResolve = allFaces.filter(
     f => missingFamilies.has(f.family) && !userFonts.has(faceKey(f))
   );
-  if (!toResolve.length) return;
+  if (!toResolve.length) {
+    // All faces already resolved in a prior run — re-affirm found state so
+    // re-running process() (e.g. toggling SVGO) doesn't lose the green callout.
+    const hasCached = allFaces.some(f => missingFamilies.has(f.family) && userFonts.has(faceKey(f)));
+    if (hasCached) localFontCheckResult = 'found';
+    return;
+  }
 
   let localFontList;
   try {
@@ -983,15 +989,13 @@ async function tryLocalFonts(allFaces, missingFamilies) {
       ? (parsed.italic ? 'italic' : 'normal')
       : face.style;
 
-    // Try exact family name first, then fall back to the stripped base name
-    let candidates = localFontList.filter(
-      f => f.family.toLowerCase() === face.family.toLowerCase()
-    );
-    if (!candidates.length && parsed.base.toLowerCase() !== face.family.toLowerCase()) {
-      candidates = localFontList.filter(
-        f => f.family.toLowerCase() === parsed.base.toLowerCase()
-      );
-    }
+    // Try: exact name → stripped base (e.g. "Georgia") → PostScript-normalised
+    // (e.g. "CourierNewPSMT" → "Courier New"). First match wins.
+    const psNorm = normalizePostScriptName(parsed.base);
+    const tryFamilies = [...new Set(
+      [face.family, parsed.base, psNorm].map(f => f.toLowerCase())
+    )];
+    let candidates = localFontList.filter(f => tryFamilies.includes(f.family.toLowerCase()));
     if (!candidates.length) continue;
 
     // Prefer exact weight+style match, then weight match, then any face
