@@ -268,7 +268,8 @@ body:not(.has-file) .file-button:hover { background: rgba(255,255,255,.32); }
   --split: 50%;
   --canvas-bg: #1a0f2e;
 }
-body.has-file .split-view { display: block; }
+body.has-file .split-view { display: block; cursor: grab; }
+body.has-file .split-view:active { cursor: grabbing; }
 
 .before-pane,
 .after-pane {
@@ -315,7 +316,16 @@ body.has-file .split-view { display: block; }
   justify-content: center;
   overflow: hidden;
 }
-.frame svg, .frame img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.zoom-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center center;
+  will-change: transform;
+}
+.zoom-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
 .frame:empty::after {
   content: 'Preview will appear here';
   display: block;
@@ -454,20 +464,44 @@ body.has-file #close-btn { display: flex; }
   z-index: 30;
 }
 .hud-left {
-  bottom: 1.5rem;
-  left: 1.5rem;
-  min-width: 240px;
-  max-width: 320px;
+  bottom: 2.5rem;
+  left: 2.5rem;
+  min-width: 220px;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
   gap: .55rem;
+  overflow: auto;
 }
 .hud-right {
-  bottom: 1.5rem;
-  right: 1.5rem;
+  bottom: 2.5rem;
+  right: 2.5rem;
   display: flex;
   flex-direction: column;
   gap: .45rem;
+  overflow: auto;
+}
+.hud-drag-bar {
+  /* Full-width grip strip — spans the top of the panel */
+  margin: -.875rem -1.1rem .1rem;   /* bleed to panel edges */
+  padding: .35rem 0;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px 12px 0 0;
+  background: rgba(255,255,255,.04);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  transition: background .15s;
+}
+.hud-drag-bar:active { cursor: grabbing; }
+.hud-drag-bar::before {
+  content: '';
+  display: block;
+  width: 2rem;
+  height: 3px;
+  border-radius: 99px;
+  background: rgba(255,255,255,.25);
 }
 .hud-file-row {
   display: flex;

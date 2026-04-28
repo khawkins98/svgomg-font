@@ -47,12 +47,127 @@ let sourceName = '';
 let processedSvg = null;
 let runId = 0;
 const fontCache = new Map();
+
+// SVG preview zoom/pan state
+let svgZoom = 0.75, svgPanX = 0, svgPanY = 0;
+
+function applySvgTransform() {
+  document.querySelectorAll('.zoom-wrap').forEach(el => {
+    el.style.transform = `translate(${svgPanX}px, ${svgPanY}px) scale(${svgZoom})`;
+  });
+}
+
+function resetSvgView() {
+  svgZoom = 0.75; svgPanX = 0; svgPanY = 0;
+}
 // User-supplied font files keyed by "family|weight|style"
 const userFonts = new Map();
 // Tracks the outcome of the Local Font Access API attempt for the current file.
 // null = not tried yet, 'unavailable' = API absent, 'denied' = permission blocked,
 // 'notfound' = tried but no match, 'found' = at least one face resolved
 let localFontCheckResult = null;
+
+/**
+ * Makes a floating panel draggable (via its drag bar) and resizable from any
+ * edge/corner via cursor-proximity detection — no extra DOM nodes needed for resize.
+ */
+function makePanelInteractive(panel, dragBar) {
+  const EDGE = 8;   // px from panel border that counts as a resize zone
+  const MIN_W = 200;
+  const MIN_H = 60;
+  let resizeDir = null;
+
+  // Detect resize zone on mousemove and update cursor accordingly
+  panel.addEventListener('mousemove', (e) => {
+    if (e.buttons !== 0) return; // don't flicker cursor mid-drag
+    if (e.target.matches('button,input,a,label,select,textarea')) {
+      resizeDir = null;
+      return;
+    }
+    const r = panel.getBoundingClientRect();
+    const n = e.clientY - r.top    < EDGE;
+    const s = r.bottom - e.clientY < EDGE;
+    const w = e.clientX - r.left   < EDGE;
+    const ew = r.right  - e.clientX < EDGE;
+    if      (n && w)  resizeDir = 'nw';
+    else if (n && ew) resizeDir = 'ne';
+    else if (s && w)  resizeDir = 'sw';
+    else if (s && ew) resizeDir = 'se';
+    else if (n)       resizeDir = 'n';
+    else if (s)       resizeDir = 's';
+    else if (w)       resizeDir = 'w';
+    else if (ew)      resizeDir = 'e';
+    else              resizeDir = null;
+    panel.style.cursor = resizeDir ? `${resizeDir}-resize` : '';
+  });
+  panel.addEventListener('mouseleave', () => { panel.style.cursor = ''; resizeDir = null; });
+
+  // Resize: mousedown anywhere in an edge zone
+  panel.addEventListener('mousedown', (e) => {
+    if (e.button !== 0 || !resizeDir) return;
+    e.preventDefault();
+    e.stopPropagation();
+    beginInteraction(e, resizeDir);
+  });
+
+  // Drag: mousedown on the drag bar — always a drag, never a resize.
+  // stopPropagation prevents the panel's resize handler from seeing it.
+  dragBar.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    if (e.target.matches('button,input,a')) return;
+    e.preventDefault();
+    e.stopPropagation();
+    beginInteraction(e, null);
+  });
+
+  function beginInteraction(e, dir) {
+    const r       = panel.getBoundingClientRect();
+    const startX  = e.clientX, startY = e.clientY;
+    // offsetLeft/offsetTop are already in the CSS coordinate system (offset-parent-relative),
+    // avoiding the jump that occurs when switching bottom/right → top/left anchoring.
+    const startL  = panel.offsetLeft, startT = panel.offsetTop;
+    const startW  = r.width,          startH = r.height;
+
+    // Anchor to top/left so we can freely move/resize
+    panel.style.left   = startL + 'px';
+    panel.style.top    = startT + 'px';
+    panel.style.right  = 'auto';
+    panel.style.bottom = 'auto';
+    if (dir) { panel.style.width = startW + 'px'; panel.style.height = startH + 'px'; }
+
+    document.body.style.cursor     = dir ? `${dir}-resize` : 'grabbing';
+    document.body.style.userSelect = 'none';
+
+    const onMove = (e) => {
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if (!dir) {
+        panel.style.left = (startL + dx) + 'px';
+        panel.style.top  = (startT + dy) + 'px';
+      } else {
+        if (dir.includes('e')) panel.style.width  = Math.max(MIN_W, startW + dx) + 'px';
+        if (dir.includes('s')) panel.style.height = Math.max(MIN_H, startH + dy) + 'px';
+        if (dir.includes('w')) {
+          const nw = Math.max(MIN_W, startW - dx);
+          panel.style.width = nw + 'px';
+          panel.style.left  = (startL + startW - nw) + 'px';
+        }
+        if (dir.includes('n')) {
+          const nh = Math.max(MIN_H, startH - dy);
+          panel.style.height = nh + 'px';
+          panel.style.top    = (startT + startH - nh) + 'px';
+        }
+      }
+    };
+    const onUp = () => {
+      document.body.style.cursor     = '';
+      document.body.style.userSelect = '';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup',   onUp);
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup',   onUp);
+  }
+}
 
 // Styled console logger — keeps DevTools output consistent and readable.
 function clog(level, ...parts) {
@@ -77,6 +192,7 @@ function closeFile() {
   fontCache.clear();
   userFonts.clear();
   localFontCheckResult = null;
+  resetSvgView();
   els.before.innerHTML = '';
   els.after.innerHTML = '';
   els.beforeMeta.textContent = '';
@@ -142,6 +258,43 @@ function init() {
     els.splitView.style.setProperty('--split', `${next}%`);
   });
 
+  // Zoom (scroll) and pan (drag) on the SVG preview area
+  els.splitView.addEventListener('wheel', (e) => {
+    if (!document.body.classList.contains('has-file')) return;
+    if (e.target.closest('.hud, .split-handle')) return;
+    e.preventDefault();
+    const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+    const r = els.splitView.getBoundingClientRect();
+    // Keep the point under the cursor stationary during zoom
+    const cx = e.clientX - r.left - r.width  / 2;
+    const cy = e.clientY - r.top  - r.height / 2;
+    svgPanX = cx - (cx - svgPanX) * factor;
+    svgPanY = cy - (cy - svgPanY) * factor;
+    svgZoom = Math.max(0.05, Math.min(20, svgZoom * factor));
+    applySvgTransform();
+  }, { passive: false });
+
+  // Drag-to-pan on the canvas background (not on panels, handle, or controls)
+  els.splitView.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    if (e.target.closest('.hud, .split-handle, button, input, a, label, select')) return;
+    if (!document.body.classList.contains('has-file')) return;
+    e.preventDefault();
+    const sx = e.clientX, sy = e.clientY;
+    const px0 = svgPanX, py0 = svgPanY;
+    els.splitView.style.cursor = 'grabbing';
+    const onMove = (e) => { svgPanX = px0 + e.clientX - sx; svgPanY = py0 + e.clientY - sy; applySvgTransform(); };
+    const onUp   = () => { els.splitView.style.cursor = ''; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  });
+
+  // Double-click canvas to reset zoom/pan
+  els.splitView.addEventListener('dblclick', (e) => {
+    if (e.target.closest('.hud, .split-handle, button, input, a')) return;
+    resetSvgView(); applySvgTransform();
+  });
+
   els.file.addEventListener('change', (e) => {
     const file = e.target.files?.[0];
     if (file) loadFile(file);
@@ -171,6 +324,9 @@ function init() {
     els.splitView.style.setProperty('--canvas-bg', e.target.value);
   });
   els.download.addEventListener('click', download);
+
+  makePanelInteractive(document.querySelector('.hud-left'),  document.querySelector('.hud-left  .hud-drag-bar'));
+  makePanelInteractive(document.querySelector('.hud-right'), document.querySelector('.hud-right .hud-drag-bar'));
 
   // Branded boot banner — plain text, no %c; # and space only = consistent in any monospace font
   console.log(
@@ -224,6 +380,7 @@ function setInput(text) {
   processedSvg = null;
   userFonts.clear();
   localFontCheckResult = null;
+  resetSvgView();
   els.fontUploads.innerHTML = '';
   els.fontUploads.hidden = true;
   els.download.hidden = true;
@@ -748,10 +905,14 @@ function renderInto(node, text) {
   const blob = new Blob([text], { type: 'image/svg+xml' });
   const url = URL.createObjectURL(blob);
   node.innerHTML = '';
+  const wrap = document.createElement('div');
+  wrap.className = 'zoom-wrap';
   const img = document.createElement('img');
   img.src = url;
   img.onload = () => URL.revokeObjectURL(url);
-  node.appendChild(img);
+  wrap.appendChild(img);
+  node.appendChild(wrap);
+  applySvgTransform();
 }
 
 function download() {
