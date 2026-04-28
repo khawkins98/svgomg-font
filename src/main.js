@@ -273,10 +273,22 @@ function init() {
     els.samples.appendChild(btn);
   }
 
-  els.aboutBtn.addEventListener('click', () => els.aboutDialog.showModal());
-  els.aboutClose.addEventListener('click', () => els.aboutDialog.close());
+  els.aboutBtn.addEventListener('click', () => {
+    els.aboutDialog.showModal();
+    els.aboutBtn.setAttribute('aria-expanded', 'true');
+  });
+  els.aboutClose.addEventListener('click', () => {
+    els.aboutDialog.close();
+    els.aboutBtn.setAttribute('aria-expanded', 'false');
+  });
   els.aboutDialog.addEventListener('click', (e) => {
-    if (e.target === els.aboutDialog) els.aboutDialog.close();
+    if (e.target === els.aboutDialog) {
+      els.aboutDialog.close();
+      els.aboutBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+  els.aboutDialog.addEventListener('close', () => {
+    els.aboutBtn.setAttribute('aria-expanded', 'false');
   });
 
   const openFilePicker = () => { els.file.value = ''; els.file.click(); };
@@ -296,6 +308,9 @@ function init() {
     const rect = els.splitView.getBoundingClientRect();
     const pct = Math.min(90, Math.max(10, ((e.clientX - rect.left) / rect.width) * 100));
     els.splitView.style.setProperty('--split', `${pct}%`);
+    const rounded = Math.round(pct);
+    els.splitHandle.setAttribute('aria-valuenow', String(rounded));
+    els.splitHandle.setAttribute('aria-valuetext', `${rounded}% before, ${100 - rounded}% after`);
   };
   const endSplit = () => { splitting = false; };
   els.splitHandle.addEventListener('pointermove', updateSplit);
@@ -309,6 +324,8 @@ function init() {
     const cur = parseFloat(els.splitView.style.getPropertyValue('--split')) || 50;
     const next = e.key === 'ArrowLeft' ? Math.max(10, cur - 5) : Math.min(90, cur + 5);
     els.splitView.style.setProperty('--split', `${next}%`);
+    els.splitHandle.setAttribute('aria-valuenow', String(next));
+    els.splitHandle.setAttribute('aria-valuetext', `${next}% before, ${100 - next}% after`);
   });
 
   // Zoom (scroll) and pan (drag) on the SVG preview area
@@ -809,7 +826,7 @@ function buildUploadUI(svgText, missingFamilies) {
     const detectBtn = document.createElement('button');
     detectBtn.className = 'detect-local-btn';
     const isRetry = localFontCheckResult === 'denied' || localFontCheckResult === 'notfound';
-    detectBtn.textContent = isRetry ? '↺ Retry font detection' : '🔍 Detect installed fonts';
+    detectBtn.textContent = isRetry ? 'Retry font detection' : 'Detect installed fonts';
     if (localFontCheckResult === 'denied') {
       detectBtn.title = 'Permission was blocked — allow "Local fonts" in your browser site settings, then retry';
     }
@@ -875,6 +892,7 @@ function buildUploadUI(svgText, missingFamilies) {
       replaceBtn.className = 'upload-face-replace';
       replaceBtn.title = 'Replace system font with your own .woff2 for smaller output';
       replaceBtn.textContent = 'Replace with .woff2';
+      replaceBtn.setAttribute('aria-label', `Replace ${faceLabel} with a .woff2 file`);
       replaceBtn.addEventListener('click', () => triggerFontUpload(face));
       row.append(label, replaceBtn);
     } else if (uploaded) {
@@ -887,6 +905,7 @@ function buildUploadUI(svgText, missingFamilies) {
       removeBtn.className = 'upload-face-remove';
       removeBtn.title = 'Remove uploaded font';
       removeBtn.textContent = '×';
+      removeBtn.setAttribute('aria-label', `Remove ${faceLabel}`);
       removeBtn.addEventListener('click', () => {
         userFonts.delete(key);
         process();
@@ -897,6 +916,7 @@ function buildUploadUI(svgText, missingFamilies) {
       const uploadBtn = document.createElement('button');
       uploadBtn.className = 'upload-face-btn';
       uploadBtn.textContent = 'Upload font';
+      uploadBtn.setAttribute('aria-label', `Upload font file for ${faceLabel}`);
       uploadBtn.addEventListener('click', () => triggerFontUpload(face));
       const dragHint = document.createElement('span');
       dragHint.className = 'upload-drag-hint';
