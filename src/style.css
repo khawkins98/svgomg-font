@@ -106,7 +106,7 @@ main {
 }
 
 body:not(.has-file) main {
-  background: #1a0f2e;
+  background: linear-gradient(to bottom, #1a0f2e 0%, #3b0764 45%, #2e1065 70%, #1a0f2e 100%);
 }
 
 body.has-file main {
