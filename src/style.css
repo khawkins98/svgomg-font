@@ -447,22 +447,23 @@ body.has-file .split-view:active { cursor: grabbing; }
   top: 1.25rem;
   left: 1.25rem;
   z-index: 40;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #dc2626;
-  color: #fff;
-  border: none;
-  font-size: 1rem;
+  height: 34px;
+  padding: 0 .85rem 0 .65rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.75);
+  border: 1px solid rgba(255,255,255,.18);
+  font-size: .8rem;
+  font-family: inherit;
   cursor: pointer;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 16px rgba(220,38,38,.45);
-  transition: background .15s, transform .1s;
-  font-family: inherit;
+  gap: .3rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background .15s, color .15s, border-color .15s;
 }
 body.has-file #close-btn { display: flex; }
-#close-btn:hover { background: #b91c1c; transform: scale(1.06); }
+#close-btn:hover { background: rgba(255,255,255,.2); color: #fff; border-color: rgba(255,255,255,.32); }
 
 /* ── HUD panels ── */
 .hud {

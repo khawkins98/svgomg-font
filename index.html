@@ -75,8 +75,13 @@
       <!-- ── loaded state: full-viewport canvas ── -->
       <div class="split-view" id="split-view">
 
-        <!-- red X to close -->
-        <button type="button" id="close-btn" aria-label="Close file and start over">&#x2715;</button>
+        <!-- back/reset button -->
+        <button type="button" id="close-btn" aria-label="Load a new file">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14">
+            <path d="M10 3 L5 8 L10 13"/>
+          </svg>
+          New file
+        </button>
 
         <!-- before pane -->
         <div class="before-pane" id="before-pane">
