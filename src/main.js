@@ -32,10 +32,10 @@ const els = {
 };
 
 const SAMPLES = [
-  { id: 'roboto-card', label: 'Roboto card (deprecated SVG fonts)', file: 'roboto-card.svg' },
-  { id: 'open-sans-list', label: 'Open Sans list (no fallback)', file: 'open-sans-list.svg' },
-  { id: 'lato-mixed', label: 'Lato regular + bold', file: 'lato-mixed.svg' },
-  { id: 'inter-headline', label: 'Inter headline', file: 'inter-headline.svg' },
+  { id: 'roboto-card',    name: 'Roboto card',          hint: 'deprecated SVG fonts',  file: 'roboto-card.svg' },
+  { id: 'open-sans-list', name: 'Open Sans list',        hint: 'no system fallback',    file: 'open-sans-list.svg' },
+  { id: 'lato-mixed',     name: 'Lato regular + bold',   hint: 'mixed weights',         file: 'lato-mixed.svg' },
+  { id: 'inter-headline', name: 'Inter headline',        hint: 'modern sans-serif',     file: 'inter-headline.svg' },
 ];
 
 let currentSvg = null;
@@ -65,7 +65,13 @@ function closeFile() {
 function init() {
   for (const s of SAMPLES) {
     const btn = document.createElement('button');
-    btn.textContent = s.label;
+    const nameEl = document.createElement('span');
+    nameEl.className = 'sample-name';
+    nameEl.textContent = s.name;
+    const hintEl = document.createElement('span');
+    hintEl.className = 'sample-hint';
+    hintEl.textContent = s.hint;
+    btn.append(nameEl, hintEl);
     btn.addEventListener('click', () => loadSample(s));
     els.samples.appendChild(btn);
   }
