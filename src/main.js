@@ -52,8 +52,44 @@ const fontCache = new Map();
 let svgZoom = 0.75, svgPanX = 0, svgPanY = 0;
 
 function applySvgTransform() {
-  document.querySelectorAll('.zoom-wrap').forEach(el => {
-    el.style.transform = `translate(${svgPanX}px, ${svgPanY}px) scale(${svgZoom})`;
+  document.querySelectorAll('.zoom-wrap').forEach(wrap => {
+    const child = wrap.firstElementChild;
+    if (!child) return;
+
+    if (child.tagName.toLowerCase() !== 'svg') {
+      // <img> fallback (parse error): CSS transform is fine, img won't zoom crisply but it's a fallback
+      wrap.style.transform = `translate(${svgPanX}px, ${svgPanY}px) scale(${svgZoom})`;
+      return;
+    }
+
+    // Inline SVG: set actual pixel dimensions so the browser renders at full resolution.
+    // CSS transform: scale() composites at layout size then scales the bitmap → blurry.
+    // Setting width/height makes the browser render SVG paths at the displayed size → crisp.
+    wrap.style.transform = '';
+    const fw = wrap.clientWidth, fh = wrap.clientHeight;
+    if (!fw || !fh) { requestAnimationFrame(applySvgTransform); return; }
+
+    // Natural SVG dimensions from viewBox or explicit px attrs
+    const vb = child.viewBox?.baseVal;
+    const wa = parseFloat(child.getAttribute('width'))  || 0;
+    const ha = parseFloat(child.getAttribute('height')) || 0;
+    let iw, ih;
+    if (vb?.width && vb?.height)   { iw = vb.width; ih = vb.height; }
+    else if (wa && ha && wa < 1e5) { iw = wa;       ih = ha;        }
+    else                           { iw = fw;       ih = fh;        }
+
+    // Scale to fit the frame (zoom=1 → fits entirely), then apply zoom
+    const fit = Math.min(fw / iw, fh / ih);
+    const dw = iw * fit * svgZoom, dh = ih * fit * svgZoom;
+
+    child.style.display   = 'block';
+    child.style.position  = 'absolute';
+    child.style.maxWidth  = 'none';
+    child.style.maxHeight = 'none';
+    child.style.width     = `${dw}px`;
+    child.style.height    = `${dh}px`;
+    child.style.left      = `${fw / 2 - dw / 2 + svgPanX}px`;
+    child.style.top       = `${fh / 2 - dh / 2 + svgPanY}px`;
   });
 }
 
@@ -274,8 +310,9 @@ function init() {
     e.preventDefault();
     const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
     const factor = delta < 0 ? 1.1 : 1 / 1.1;
-    const r = els.splitView.getBoundingClientRect();
-    // Keep the point under the cursor stationary during zoom
+    // Use the hovered pane's frame center as the zoom anchor (svgPanX/Y is pane-relative)
+    const pane = e.target.closest('.before-pane, .after-pane');
+    const r = (pane || els.splitView).getBoundingClientRect();
     const cx = e.clientX - r.left - r.width  / 2;
     const cy = e.clientY - r.top  - r.height / 2;
     svgPanX = cx - (cx - svgPanX) * factor;
