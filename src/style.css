@@ -592,6 +592,19 @@ body.has-file #close-btn { display: flex; }
   gap: .45rem;
   font-size: .74rem;
   font-family: ui-monospace, monospace;
+  transition: background 0.15s;
+}
+.upload-face-row.drag-over {
+  background: rgba(167,139,250,.15);
+  outline: 2px dashed #a78bfa;
+  outline-offset: -2px;
+  border-radius: 6px;
+}
+.upload-drag-hint {
+  opacity: .4;
+  font-size: 0.7rem;
+  margin-left: .4rem;
+  white-space: nowrap;
 }
 .upload-face-label {
   flex: 1;
@@ -782,6 +795,25 @@ body.has-file #close-btn { display: flex; }
   transition: background .15s;
 }
 .hud-download:hover { background: #6d28d9; }
+
+#copy-btn.hud-copy {
+  width: 100%;
+  margin-top: .4rem;
+  padding: .45rem 1rem;
+  background: rgba(124,58,237,.25);
+  color: rgba(255,255,255,.85);
+  border: 1px solid rgba(167,139,250,.4);
+  border-radius: 6px;
+  font-size: .85rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .15s, border-color .15s;
+}
+#copy-btn.hud-copy:hover {
+  background: rgba(124,58,237,.45);
+  border-color: rgba(167,139,250,.7);
+}
 
 .hud-opts-title {
   margin: 0 0 .2rem;
