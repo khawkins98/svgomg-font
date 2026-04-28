@@ -678,6 +678,7 @@ body.has-file .wave-section { display: none; }
   flex-shrink: 0;
   position: relative;
   z-index: 5; /* slides over the fixed wave */
+  background: var(--bg);
 }
 body.has-file .features-section { display: none; }
 
@@ -695,20 +696,24 @@ body.has-file .features-section { display: none; }
 body.has-file .wave-features-top { display: none; }
 
 .features-inner {
-  background: var(--bg);
-  padding: 5rem 2rem 6rem;
-  max-width: 940px;
+  background: transparent;
+  padding: 3rem 2rem 6rem;
+  max-width: 980px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 6rem;
+  gap: 2rem;
 }
 
 .feat {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  gap: 3rem;
   align-items: center;
+  background: var(--card);
+  border-radius: 20px;
+  padding: 2.5rem 3rem;
+  box-shadow: 0 2px 24px rgba(124,58,237,.09), 0 1px 4px rgba(0,0,0,.05);
 }
 .feat-flip { direction: rtl; }
 .feat-flip > * { direction: ltr; }
@@ -843,10 +848,11 @@ body.has-file .wave-features-top { display: none; }
     grid-template-columns: 1fr;
     direction: ltr;
     gap: 2rem;
+    padding: 1.75rem 1.5rem;
   }
   .feat-art { aspect-ratio: 16/9; }
   .feat-title { font-size: 1.5rem; }
-  .features-inner { gap: 4rem; padding: 3rem 1.25rem 4rem; }
+  .features-inner { gap: 1.25rem; padding: 2rem 1rem 4rem; }
 }
 
 
