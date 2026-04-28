@@ -1254,3 +1254,22 @@ footer a { color: var(--accent); }
   .wave-path-1, .wave-path-2, .wave-path-3,
   .dropzone { animation: none; }
 }
+
+/* ── accessibility ── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  padding: 0.5rem 1rem;
+  background: #7c3aed;
+  color: #fff;
+  border-radius: 0 0 6px 6px;
+  font-weight: 600;
+  z-index: 9999;
+  transition: top 0.15s;
+  text-decoration: none;
+}
+.skip-link:focus { top: 0; }
+
+.hud-opts-fieldset { border: none; padding: 0; margin: 0; }
+.hud-opts-fieldset .hud-opts-title { /* same visual as existing .hud-opts-title */ }
