@@ -20,6 +20,7 @@ const els = {
   optEmbed: $('#opt-embed'),
   optSvgo: $('#opt-svgo'),
   optStrip: $('#opt-strip-svg-fonts'),
+  optSubset: $('#opt-subset'),
   optBgColor: $('#opt-bg-color'),
   download: $('#download'),
   copyBtn: $('#copy-btn'),
@@ -380,7 +381,7 @@ function init() {
     if (file) loadFile(file);
   });
 
-  [els.optEmbed, els.optSvgo, els.optStrip].forEach((cb) =>
+  [els.optEmbed, els.optSvgo, els.optStrip, els.optSubset].forEach((cb) =>
     cb.addEventListener('change', () => { if (currentSvg) process(); }),
   );
   els.optBgColor.addEventListener('input', (e) => {
@@ -542,7 +543,7 @@ function describeAfter(text, embeddedCount, anyMissing) {
 async function process() {
   if (!currentSvg) return;
   const myRunId = ++runId;
-  const opts = { embed: els.optEmbed.checked, svgo: els.optSvgo.checked, strip: els.optStrip.checked };
+  const opts = { embed: els.optEmbed.checked, svgo: els.optSvgo.checked, strip: els.optStrip.checked, subset: els.optSubset.checked };
   log('info', 'Processing…');
 
   let out = currentSvg;
@@ -620,10 +621,10 @@ async function process() {
         // Subset each font to only the characters used in the SVG, then
         // re-compress to woff2 for the smallest possible embedded size.
         // Falls back to the full font silently on any error.
-        const usedCodepoints = extractUsedCodepoints(out);
-        const subsettedFonts = await Promise.all(
-          fonts.map(f => subsetFontIfPossible(f, usedCodepoints))
-        );
+        const usedCodepoints = opts.subset ? extractUsedCodepoints(out) : null;
+        const subsettedFonts = opts.subset
+          ? await Promise.all(fonts.map(f => subsetFontIfPossible(f, usedCodepoints)))
+          : fonts;
         if (runId !== myRunId) return;
 
         // Refresh subsetInfoMap so the upload-UI labels can show before/after sizes.
@@ -643,8 +644,9 @@ async function process() {
         if (totalSubsetBytes < totalOriginalBytes) {
           const fromKb = Math.round(totalOriginalBytes / 1024);
           const toKb   = Math.round(totalSubsetBytes   / 1024);
-          lines.push(`  ✂ Subset: ${fromKb} KB → ${toKb} KB (${usedCodepoints.size} unique codepoints)`);
-          clog('info', `✂ Subset: ${fromKb} KB → ${toKb} KB (${usedCodepoints.size} codepoints)`);
+          const cpNote = usedCodepoints ? ` (${usedCodepoints.size} unique codepoints)` : '';
+          lines.push(`  ✂ Subset: ${fromKb} KB → ${toKb} KB${cpNote}`);
+          clog('info', `✂ Subset: ${fromKb} KB → ${toKb} KB${cpNote}`);
         }
 
         out = embedFontFaces(out, subsettedFonts);
