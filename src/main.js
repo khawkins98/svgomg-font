@@ -2,6 +2,7 @@ import { extractFontFamilies, extractFontFaces, hasDeprecatedSvgFonts, stripDepr
 import { fetchFontAsBase64, parseFamily, normalizePostScriptName } from './lib/fetchFont.js';
 import { embedFontFaces } from './lib/embedFonts.js';
 import { svgoPass } from './lib/optimize.js';
+import { extractUsedCodepoints, subsetFontIfPossible } from './lib/subsetFont.js';
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -48,6 +49,9 @@ let sourceName = '';
 let processedSvg = null;
 let runId = 0;
 const fontCache = new Map();
+// Maps faceKey → { subsetBytes, originalBytes } populated after each successful subset pass.
+// Used by buildUploadUI to show the size reduction in the label.
+const subsetInfoMap = new Map();
 
 // SVG preview zoom/pan state
 let svgZoom = 0.75, svgPanX = 0, svgPanY = 0;
@@ -237,6 +241,7 @@ function closeFile() {
   sourceName = '';
   fontCache.clear();
   userFonts.clear();
+  subsetInfoMap.clear();
   localFontCheckResult = null;
   resetSvgView();
   els.before.innerHTML = '';
@@ -487,6 +492,7 @@ function setInput(text) {
   currentSvg = text;
   processedSvg = null;
   userFonts.clear();
+  subsetInfoMap.clear();
   localFontCheckResult = null;
   resetSvgView();
   els.fontUploads.innerHTML = '';
@@ -611,8 +617,38 @@ async function process() {
           }
         }
 
-        out = embedFontFaces(out, fonts);
-        embeddedCount = fonts.length;
+        // Subset each font to only the characters used in the SVG, then
+        // re-compress to woff2 for the smallest possible embedded size.
+        // Falls back to the full font silently on any error.
+        const usedCodepoints = extractUsedCodepoints(out);
+        const subsettedFonts = await Promise.all(
+          fonts.map(f => subsetFontIfPossible(f, usedCodepoints))
+        );
+        if (runId !== myRunId) return;
+
+        // Refresh subsetInfoMap so the upload-UI labels can show before/after sizes.
+        subsetInfoMap.clear();
+        let totalOriginalBytes = 0, totalSubsetBytes = 0;
+        for (let i = 0; i < fonts.length; i++) {
+          const orig = fonts[i];
+          const sub  = subsettedFonts[i];
+          totalOriginalBytes += orig.bytes;
+          totalSubsetBytes   += sub.bytes;
+          if (sub.originalBytes != null) {
+            const styleNorm = orig.style ?? (orig.italic ? 'italic' : 'normal');
+            subsetInfoMap.set(`${orig.family}|${orig.weight}|${styleNorm}`,
+              { subsetBytes: sub.bytes, originalBytes: sub.originalBytes });
+          }
+        }
+        if (totalSubsetBytes < totalOriginalBytes) {
+          const fromKb = Math.round(totalOriginalBytes / 1024);
+          const toKb   = Math.round(totalSubsetBytes   / 1024);
+          lines.push(`  ✂ Subset: ${fromKb} KB → ${toKb} KB (${usedCodepoints.size} unique codepoints)`);
+          clog('info', `✂ Subset: ${fromKb} KB → ${toKb} KB (${usedCodepoints.size} codepoints)`);
+        }
+
+        out = embedFontFaces(out, subsettedFonts);
+        embeddedCount = subsettedFonts.length;
       }
     }
 
@@ -826,9 +862,13 @@ function buildUploadUI(svgText, missingFamilies) {
 
     if (uploaded?.source === 'local') {
       const kb = Math.round(uploaded.bytes / 1024);
+      const subsetInfo = subsetInfoMap.get(key);
+      const sizeStr = subsetInfo
+        ? `${Math.round(subsetInfo.originalBytes / 1024)} KB → ${Math.round(subsetInfo.subsetBytes / 1024)} KB (subset)`
+        : `${kb} KB`;
       label.innerHTML =
         `<span class="face-local">✓</span> ${escHtml(faceLabel)} ` +
-        `<span class="face-local-note">· system font · ${uploaded.cssFormat} · ${kb} KB</span>`;
+        `<span class="face-local-note">· system font · ${uploaded.cssFormat} · ${sizeStr}</span>`;
       const replaceBtn = document.createElement('button');
       replaceBtn.className = 'upload-face-replace';
       replaceBtn.title = 'Replace system font with your own .woff2 for smaller output';
@@ -836,7 +876,11 @@ function buildUploadUI(svgText, missingFamilies) {
       replaceBtn.addEventListener('click', () => triggerFontUpload(face));
       row.append(label, replaceBtn);
     } else if (uploaded) {
-      label.innerHTML = `<span class="face-ok">✓</span> ${escHtml(faceLabel)} <span style="opacity:.5">· ${escHtml(uploaded.fileName)}</span>`;
+      const subsetInfo = subsetInfoMap.get(key);
+      const sizeNote = subsetInfo
+        ? ` · ${Math.round(subsetInfo.originalBytes / 1024)} KB → ${Math.round(subsetInfo.subsetBytes / 1024)} KB (subset)`
+        : '';
+      label.innerHTML = `<span class="face-ok">✓</span> ${escHtml(faceLabel)} <span style="opacity:.5">· ${escHtml(uploaded.fileName)}${sizeNote}</span>`;
       const removeBtn = document.createElement('button');
       removeBtn.className = 'upload-face-remove';
       removeBtn.title = 'Remove uploaded font';
