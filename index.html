@@ -48,7 +48,12 @@
             <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
           </svg>
           <p><strong>Drop the culprit</strong></p>
-          <button type="button" class="file-button" id="hero-file-btn">Choose file</button>
+          <div class="dropzone-actions">
+            <button type="button" class="file-button" id="hero-file-btn">Choose file</button>
+            <button type="button" class="file-button file-button--ghost" id="paste-btn">Paste SVG</button>
+          </div>
+          <p class="dropzone-hint">or press <kbd>Cmd+V</kbd> / <kbd>Ctrl+V</kbd> anywhere</p>
+          <p class="dropzone-error" id="dropzone-error" hidden></p>
         </div>
         <input type="file" id="file-input" accept=".svg,image/svg+xml" />
       </section>

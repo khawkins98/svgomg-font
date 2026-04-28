@@ -57,8 +57,21 @@ function applySvgTransform() {
   });
 }
 
-function resetSvgView() {
-  svgZoom = 0.75; svgPanX = 0; svgPanY = 0;
+function resetSvgView() { svgZoom = 0.75; svgPanX = 0; svgPanY = 0; }
+function stepZoom(f) { svgZoom = Math.max(0.05, Math.min(20, svgZoom * f)); applySvgTransform(); }
+
+function loadPastedSvg(text) {
+  sourceName = 'pasted.svg';
+  currentName = 'pasted.web.svg';
+  setInput(text);
+}
+
+function showDropzoneError(msg) {
+  const el = document.getElementById('dropzone-error');
+  if (!el) return;
+  el.textContent = msg;
+  el.hidden = false;
+  setTimeout(() => { el.hidden = true; }, 4000);
 }
 // User-supplied font files keyed by "family|weight|style"
 const userFonts = new Map();
@@ -69,51 +82,47 @@ let localFontCheckResult = null;
 
 /**
  * Makes a floating panel draggable (via its drag bar) and resizable from any
- * edge/corner via cursor-proximity detection — no extra DOM nodes needed for resize.
+ * edge/corner. Uses Pointer Events so it works with mouse, touch, and pen.
  */
 function makePanelInteractive(panel, dragBar) {
-  const EDGE = 8;   // px from panel border that counts as a resize zone
+  const EDGE = 8;
   const MIN_W = 200;
   const MIN_H = 60;
-  let resizeDir = null;
 
-  // Detect resize zone on mousemove and update cursor accordingly
-  panel.addEventListener('mousemove', (e) => {
-    if (e.buttons !== 0) return; // don't flicker cursor mid-drag
-    if (e.target.matches('button,input,a,label,select,textarea')) {
-      resizeDir = null;
-      return;
-    }
-    const r = panel.getBoundingClientRect();
+  function getEdgeDir(e, r) {
     const n = e.clientY - r.top    < EDGE;
     const s = r.bottom - e.clientY < EDGE;
     const w = e.clientX - r.left   < EDGE;
-    const ew = r.right  - e.clientX < EDGE;
-    if      (n && w)  resizeDir = 'nw';
-    else if (n && ew) resizeDir = 'ne';
-    else if (s && w)  resizeDir = 'sw';
-    else if (s && ew) resizeDir = 'se';
-    else if (n)       resizeDir = 'n';
-    else if (s)       resizeDir = 's';
-    else if (w)       resizeDir = 'w';
-    else if (ew)      resizeDir = 'e';
-    else              resizeDir = null;
-    panel.style.cursor = resizeDir ? `${resizeDir}-resize` : '';
-  });
-  panel.addEventListener('mouseleave', () => { panel.style.cursor = ''; resizeDir = null; });
+    const ew = r.right - e.clientX < EDGE;
+    if (n && w)  return 'nw'; if (n && ew) return 'ne';
+    if (s && w)  return 'sw'; if (s && ew) return 'se';
+    if (n) return 'n'; if (s) return 's';
+    if (w) return 'w'; if (ew) return 'e';
+    return null;
+  }
 
-  // Resize: mousedown anywhere in an edge zone
-  panel.addEventListener('mousedown', (e) => {
-    if (e.button !== 0 || !resizeDir) return;
+  // Mouse hover: update resize cursor from current pointer position
+  panel.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' || e.buttons !== 0) return;
+    if (e.target.matches('button,input,a,label,select,textarea')) { panel.style.cursor = ''; return; }
+    const dir = getEdgeDir(e, panel.getBoundingClientRect());
+    panel.style.cursor = dir ? `${dir}-resize` : '';
+  });
+  panel.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') panel.style.cursor = ''; });
+
+  // Resize: pointerdown in edge zone (recompute direction here for touch support)
+  panel.addEventListener('pointerdown', (e) => {
+    if (!e.isPrimary || e.button !== 0) return;
+    const dir = getEdgeDir(e, panel.getBoundingClientRect());
+    if (!dir) return;
     e.preventDefault();
     e.stopPropagation();
-    beginInteraction(e, resizeDir);
+    beginInteraction(e, dir);
   });
 
-  // Drag: mousedown on the drag bar — always a drag, never a resize.
-  // stopPropagation prevents the panel's resize handler from seeing it.
-  dragBar.addEventListener('mousedown', (e) => {
-    if (e.button !== 0) return;
+  // Drag: pointerdown on drag bar — always a move, never a resize
+  dragBar.addEventListener('pointerdown', (e) => {
+    if (!e.isPrimary || e.button !== 0) return;
     if (e.target.matches('button,input,a')) return;
     e.preventDefault();
     e.stopPropagation();
@@ -121,20 +130,16 @@ function makePanelInteractive(panel, dragBar) {
   });
 
   function beginInteraction(e, dir) {
-    const r       = panel.getBoundingClientRect();
-    const startX  = e.clientX, startY = e.clientY;
-    // offsetLeft/offsetTop are already in the CSS coordinate system (offset-parent-relative),
-    // avoiding the jump that occurs when switching bottom/right → top/left anchoring.
-    const startL  = panel.offsetLeft, startT = panel.offsetTop;
-    const startW  = r.width,          startH = r.height;
+    const r      = panel.getBoundingClientRect();
+    const startX = e.clientX, startY = e.clientY;
+    const startL = panel.offsetLeft, startT = panel.offsetTop;
+    const startW = r.width,  startH = r.height;
 
-    // Anchor to top/left so we can freely move/resize
-    panel.style.left   = startL + 'px';
-    panel.style.top    = startT + 'px';
-    panel.style.right  = 'auto';
-    panel.style.bottom = 'auto';
+    panel.style.left = startL + 'px'; panel.style.top  = startT + 'px';
+    panel.style.right = 'auto';       panel.style.bottom = 'auto';
     if (dir) { panel.style.width = startW + 'px'; panel.style.height = startH + 'px'; }
 
+    panel.setPointerCapture(e.pointerId);
     document.body.style.cursor     = dir ? `${dir}-resize` : 'grabbing';
     document.body.style.userSelect = 'none';
 
@@ -158,14 +163,18 @@ function makePanelInteractive(panel, dragBar) {
         }
       }
     };
-    const onUp = () => {
-      document.body.style.cursor     = '';
+    const cleanup = () => {
+      document.body.style.cursor = '';
       document.body.style.userSelect = '';
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup',   onUp);
+      panel.removeEventListener('pointermove', onMove);
+      panel.removeEventListener('pointerup',           cleanup);
+      panel.removeEventListener('pointercancel',       cleanup);
+      panel.removeEventListener('lostpointercapture',  cleanup);
     };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup',   onUp);
+    panel.addEventListener('pointermove',          onMove);
+    panel.addEventListener('pointerup',            cleanup);
+    panel.addEventListener('pointercancel',        cleanup);
+    panel.addEventListener('lostpointercapture',   cleanup);
   }
 }
 
@@ -275,18 +284,27 @@ function init() {
   }, { passive: false });
 
   // Drag-to-pan on the canvas background (not on panels, handle, or controls)
-  els.splitView.addEventListener('mousedown', (e) => {
-    if (e.button !== 0) return;
+  els.splitView.addEventListener('pointerdown', (e) => {
+    if (!e.isPrimary || e.button !== 0) return;
     if (e.target.closest('.hud, .split-handle, button, input, a, label, select')) return;
     if (!document.body.classList.contains('has-file')) return;
     e.preventDefault();
+    els.splitView.setPointerCapture(e.pointerId);
     const sx = e.clientX, sy = e.clientY;
     const px0 = svgPanX, py0 = svgPanY;
     els.splitView.style.cursor = 'grabbing';
     const onMove = (e) => { svgPanX = px0 + e.clientX - sx; svgPanY = py0 + e.clientY - sy; applySvgTransform(); };
-    const onUp   = () => { els.splitView.style.cursor = ''; document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    const cleanup = () => {
+      els.splitView.style.cursor = '';
+      els.splitView.removeEventListener('pointermove',          onMove);
+      els.splitView.removeEventListener('pointerup',            cleanup);
+      els.splitView.removeEventListener('pointercancel',        cleanup);
+      els.splitView.removeEventListener('lostpointercapture',   cleanup);
+    };
+    els.splitView.addEventListener('pointermove',         onMove);
+    els.splitView.addEventListener('pointerup',           cleanup);
+    els.splitView.addEventListener('pointercancel',       cleanup);
+    els.splitView.addEventListener('lostpointercapture',  cleanup);
   });
 
   // Double-click canvas to reset zoom/pan
@@ -324,6 +342,37 @@ function init() {
     els.splitView.style.setProperty('--canvas-bg', e.target.value);
   });
   els.download.addEventListener('click', download);
+
+  // Keyboard shortcuts for zoom: Cmd/Ctrl + =|+ (zoom in), - (zoom out), 0 (reset)
+  document.addEventListener('keydown', (e) => {
+    if (!document.body.classList.contains('has-file')) return;
+    if (e.target instanceof Element && e.target.closest('input,textarea,select,[contenteditable]')) return;
+    const mod = e.metaKey || e.ctrlKey;
+    if (mod && (e.key === '=' || e.key === '+')) { e.preventDefault(); stepZoom(1.25); }
+    else if (mod && e.key === '-')               { e.preventDefault(); stepZoom(1 / 1.25); }
+    else if (mod && e.key === '0')               { e.preventDefault(); resetSvgView(); applySvgTransform(); }
+  });
+
+  // Paste SVG from clipboard (Cmd+V or Ctrl+V anywhere on the page)
+  document.addEventListener('paste', (e) => {
+    if (e.target instanceof Element && e.target.closest('input,textarea,select,[contenteditable]')) return;
+    const text = e.clipboardData?.getData('text') ?? '';
+    if (/<svg[\s>]/i.test(text)) { e.preventDefault(); loadPastedSvg(text); return; }
+    const svgItem = Array.from(e.clipboardData?.items ?? []).find(it => it.type === 'image/svg+xml');
+    if (svgItem) { e.preventDefault(); svgItem.getAsString(loadPastedSvg); }
+  });
+
+  // "Paste SVG" button in the dropzone
+  const pasteBtn = document.getElementById('paste-btn');
+  if (pasteBtn) {
+    pasteBtn.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (!/<svg[\s>]/i.test(text)) { showDropzoneError('No SVG found in clipboard. Copy SVG markup first.'); return; }
+        loadPastedSvg(text);
+      } catch { showDropzoneError('Clipboard access blocked — press Cmd+V or Ctrl+V to paste.'); }
+    });
+  }
 
   makePanelInteractive(document.querySelector('.hud-left'),  document.querySelector('.hud-left  .hud-drag-bar'));
   makePanelInteractive(document.querySelector('.hud-right'), document.querySelector('.hud-right .hud-drag-bar'));
@@ -410,6 +459,20 @@ function describe(text) {
     .join(' · ');
 }
 
+function describeAfter(text, embeddedCount, anyMissing) {
+  const size = new Blob([text]).size;
+  const parts = [`${size.toLocaleString()} bytes`];
+  if (embeddedCount > 0) {
+    const faces = `${embeddedCount} font face${embeddedCount === 1 ? '' : 's'} embedded`;
+    if (!anyMissing) {
+      parts.push(`<span class="meta-embedded">${faces} · renders everywhere ✓</span>`);
+    } else {
+      parts.push(`<span class="meta-embedded meta-partial">${faces} · some faces missing</span>`);
+    }
+  }
+  return parts.join(' · ');
+}
+
 async function process() {
   if (!currentSvg) return;
   const myRunId = ++runId;
@@ -421,6 +484,7 @@ async function process() {
   let noFontFound = false;
   let anyMissing = false;
   let anyLocalFont = false;
+  let embeddedCount = 0;
   const missingFamilies = new Set();
 
   try {
@@ -488,6 +552,7 @@ async function process() {
         }
 
         out = embedFontFaces(out, fonts);
+        embeddedCount = fonts.length;
       }
     }
 
@@ -504,7 +569,7 @@ async function process() {
     if (runId !== myRunId) return;
     processedSvg = out;
     renderInto(els.after, out);
-    els.afterMeta.textContent = describe(out);
+    els.afterMeta.innerHTML = describeAfter(out, embeddedCount, anyMissing);
     els.download.hidden = false;
 
     if (noFontFound) {
