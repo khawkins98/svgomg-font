@@ -14,8 +14,7 @@
     "vite": "^5.4.10"
   },
   "dependencies": {
-    "harfbuzzjs": "^0.10.3",
-    "svgo": "^3.3.2",
-    "wawoff2": "^2.0.1"
+    "fontkit": "^2.0.4",
+    "svgo": "^3.3.2"
   }
 }
