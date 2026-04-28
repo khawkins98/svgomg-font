@@ -1,5 +1,5 @@
 import { extractFontFamilies, extractFontFaces, hasDeprecatedSvgFonts, stripDeprecatedSvgFonts } from './lib/parseSvg.js';
-import { fetchFontAsBase64 } from './lib/fetchFont.js';
+import { fetchFontAsBase64, parseFamily } from './lib/fetchFont.js';
 import { embedFontFaces } from './lib/embedFonts.js';
 import { svgoPass } from './lib/optimize.js';
 
@@ -680,10 +680,12 @@ function buildUploadUI(svgText, missingFamilies) {
   container.hidden = false;
 
   const faces = extractFontFaces(svgText).filter(f => missingFamilies.has(f.family));
-  // Edge case: no faces extracted for a missing family — add a 400/normal placeholder
+  // Edge case: no faces extracted for a missing family — add a placeholder,
+  // parsing weight/style from the family name suffix (e.g. "Georgia-Bold" → 700)
   for (const family of missingFamilies) {
     if (!faces.some(f => f.family === family)) {
-      faces.push({ family, weight: 400, style: 'normal' });
+      const { weight, italic } = parseFamily(family);
+      faces.push({ family, weight, style: italic ? 'italic' : 'normal' });
     }
   }
 
@@ -973,18 +975,32 @@ async function tryLocalFonts(allFaces, missingFamilies) {
 
   let foundAny = false;
   for (const face of toResolve) {
-    const candidates = localFontList.filter(
+    // Parse weight/style from the family name suffix (e.g. "Georgia-Bold" → base "Georgia", weight 700)
+    // so we can match against the OS font list even when the SVG uses PostScript-style names.
+    const parsed = parseFamily(face.family);
+    const effectiveWeight = parsed.base !== face.family ? parsed.weight : face.weight;
+    const effectiveStyle  = parsed.base !== face.family
+      ? (parsed.italic ? 'italic' : 'normal')
+      : face.style;
+
+    // Try exact family name first, then fall back to the stripped base name
+    let candidates = localFontList.filter(
       f => f.family.toLowerCase() === face.family.toLowerCase()
     );
+    if (!candidates.length && parsed.base.toLowerCase() !== face.family.toLowerCase()) {
+      candidates = localFontList.filter(
+        f => f.family.toLowerCase() === parsed.base.toLowerCase()
+      );
+    }
     if (!candidates.length) continue;
 
     // Prefer exact weight+style match, then weight match, then any face
     const match =
       candidates.find(f => {
         const p = parseLocalFontStyle(f.style);
-        return p.weight === face.weight && p.style === face.style;
+        return p.weight === effectiveWeight && p.style === effectiveStyle;
       }) ||
-      candidates.find(f => parseLocalFontStyle(f.style).weight === face.weight) ||
+      candidates.find(f => parseLocalFontStyle(f.style).weight === effectiveWeight) ||
       candidates[0];
 
     try {
