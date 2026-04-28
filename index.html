@@ -110,6 +110,87 @@
         </div>
 
       </div>
+      <!-- ── feature cards (inspired by Squoosh) ── -->
+      <section class="features-section">
+        <!-- wave transition: dark → light -->
+        <svg class="wave-features-top" viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M0,40 C360,80 720,0 1080,50 C1260,75 1380,25 1440,40 L1440,80 L0,80 Z" fill="#f5f3ff"/>
+        </svg>
+        <div class="features-inner">
+
+          <!-- Card 1 -->
+          <div class="feat">
+            <div class="feat-text">
+              <h2 class="feat-title">Baked&nbsp;in, not borrowed</h2>
+              <p class="feat-desc">Most SVG editors reference fonts by URL — <code>url("https://…")</code>. That URL silently fails inside <code>&lt;img&gt;</code> tags, email clients, and sandboxed iframes. SVGOMG-Font encodes the actual WOFF2 data as base64 directly in the file, so fonts travel with the SVG, always.</p>
+            </div>
+            <div class="feat-art">
+              <div class="fv-split">
+                <div class="fv-half fv-half-bad">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" class="fv-icon" aria-hidden="true">
+                    <rect x="8" y="6" width="32" height="36" rx="4" fill="#fde8e8" stroke="#ef4444" stroke-width="2"/>
+                    <line x1="18" y1="18" x2="30" y2="30" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+                    <line x1="30" y1="18" x2="18" y2="30" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>
+                    <text x="24" y="40" text-anchor="middle" font-size="7" fill="#ef4444" font-family="monospace">url(…)</text>
+                  </svg>
+                  <span class="fv-cap">Referenced</span>
+                </div>
+                <div class="fv-half fv-half-good">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none" class="fv-icon" aria-hidden="true">
+                    <rect x="8" y="6" width="32" height="36" rx="4" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+                    <polyline points="16,24 22,30 32,18" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <text x="24" y="40" text-anchor="middle" font-size="7" fill="#7c3aed" font-family="monospace">base64</text>
+                  </svg>
+                  <span class="fv-cap">Embedded</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="feat feat-flip">
+            <div class="feat-art">
+              <div class="fv-browser">
+                <div class="fv-browser-bar">
+                  <span class="fv-dot"></span><span class="fv-dot"></span><span class="fv-dot"></span>
+                </div>
+                <div class="fv-browser-body">
+                  <code class="fv-code">&lt;img src="diagram.svg"&gt;</code>
+                  <div class="fv-svg-preview">
+                    <svg viewBox="0 0 80 40" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                      <rect width="80" height="40" rx="6" fill="#ede9fe"/>
+                      <text x="40" y="26" text-anchor="middle" font-size="14" fill="#7c3aed" font-family="Georgia, serif" font-weight="bold">Aa</text>
+                    </svg>
+                    <span class="fv-check-badge">✓</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="feat-text">
+              <h2 class="feat-title">Works&nbsp;in <code class="feat-code">&lt;img&gt;</code> tags</h2>
+              <p class="feat-desc">Inline SVGs can load external fonts. But the moment you drop an SVG into an <code>&lt;img&gt;</code> tag, a CSS background, or an email, external requests are blocked by the browser sandbox. Embedded fonts sidestep the sandbox entirely — the font data is already in the file.</p>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="feat">
+            <div class="feat-text">
+              <h2 class="feat-title">Zero&nbsp;uploads. Zero&nbsp;server.</h2>
+              <p class="feat-desc">Your SVG never leaves your machine. Parsing, font lookup, base64 encoding — everything runs locally in your browser. Fonts are fetched from the open <a href="https://fontsource.org/" target="_blank" rel="noreferrer">Fontsource</a> CDN and cached for instant re-use. No accounts, no quotas, no waiting.</p>
+            </div>
+            <div class="feat-art">
+              <div class="fv-shield-wrap">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 88" fill="none" class="fv-shield" aria-hidden="true">
+                  <path d="M40 4 L72 18 L72 46 C72 64 57 78 40 84 C23 78 8 64 8 46 L8 18 Z" fill="#ede9fe" stroke="#7c3aed" stroke-width="3"/>
+                  <path d="M28 44 L36 52 L52 36" stroke="#7c3aed" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div class="fv-shield-label">100% local</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
     </main>
 
     <footer>
@@ -121,6 +202,7 @@
         Optimization by
         <a href="https://svgo.dev/" target="_blank" rel="noreferrer">SVGO</a>. All
         processing happens in your browser.
+        Feature layout inspired by <a href="https://squoosh.app/" target="_blank" rel="noreferrer">Squoosh</a>.
       </p>
     </footer>
 
