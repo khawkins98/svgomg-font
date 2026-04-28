@@ -135,9 +135,9 @@ body.has-file main {
   background-size: 20px 20px;
   background-position: 0 0, 0 10px, 10px -10px, -10px 0;
   /* angled bottom cut — diagonal "band sweep" */
-  padding-bottom: 20vw;
+  padding-bottom: 5vw;
   padding-top: 5vw;
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 22vw), 0 100%);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10vw), 0 100%);
 }
 
 /* Remove header's bottom border so it merges into the dark upload strip */
