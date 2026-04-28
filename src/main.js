@@ -989,13 +989,19 @@ async function tryLocalFonts(allFaces, missingFamilies) {
       ? (parsed.italic ? 'italic' : 'normal')
       : face.style;
 
-    // Try: exact name → stripped base (e.g. "Georgia") → PostScript-normalised
-    // (e.g. "CourierNewPSMT" → "Courier New"). First match wins.
+    // Build a set of names to try against .family.
+    // Also try PostScript-normalised name for CamelCase/PSMT names.
     const psNorm = normalizePostScriptName(parsed.base);
-    const tryFamilies = [...new Set(
+    const tryFamilies = new Set(
       [face.family, parsed.base, psNorm].map(f => f.toLowerCase())
-    )];
-    let candidates = localFontList.filter(f => tryFamilies.includes(f.family.toLowerCase()));
+    );
+    // The Local Font Access API exposes .postscriptName on each FontData entry,
+    // which is exactly what SVGs often embed (e.g. "MarkerFelt-Wide").
+    // Match by postscriptName first (direct hit), then fall back to family name.
+    let candidates = localFontList.filter(f =>
+      f.postscriptName.toLowerCase() === face.family.toLowerCase() ||
+      tryFamilies.has(f.family.toLowerCase())
+    );
     if (!candidates.length) continue;
 
     // Prefer exact weight+style match, then weight match, then any face
