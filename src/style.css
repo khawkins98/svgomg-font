@@ -662,6 +662,12 @@ input[type="checkbox"]:focus-visible {
 .wave-section { flex-shrink: 0; }
 body.has-file .wave-section { display: none; }
 .wave-svg { display: block; width: 100%; margin-bottom: -1px; }
+.wave-section-exit {
+  display: block;
+  width: 100%;
+  margin-top: -1px;
+  background: #1a0f2e;
+}
 .samples-area {
   background: #1a0f2e;
   padding: 1.75rem 2rem calc(3rem + 64px);
