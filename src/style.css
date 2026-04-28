@@ -221,6 +221,17 @@ body:not(.has-file) .file-button {
   color: #fff;
 }
 body:not(.has-file) .file-button:hover { background: rgba(255,255,255,.32); }
+body:not(.has-file) .file-button--ghost {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.3);
+  color: rgba(255,255,255,.8);
+}
+body:not(.has-file) .file-button--ghost:hover { background: rgba(255,255,255,.12); color: #fff; }
+
+.dropzone-actions { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; }
+.dropzone-hint { font-size: .78rem; color: rgba(255,255,255,.5); margin: .25rem 0 0; }
+.dropzone-hint kbd { font-family: inherit; background: rgba(255,255,255,.12); border-radius: 3px; padding: .1em .35em; font-size: .85em; }
+.dropzone-error { font-size: .8rem; color: #fbbf24; margin: .4rem 0 0; }
 
 .samples {
   display: grid;
@@ -268,7 +279,7 @@ body:not(.has-file) .file-button:hover { background: rgba(255,255,255,.32); }
   --split: 50%;
   --canvas-bg: #1a0f2e;
 }
-body.has-file .split-view { display: block; cursor: grab; }
+body.has-file .split-view { display: block; cursor: grab; touch-action: none; }
 body.has-file .split-view:active { cursor: grabbing; }
 
 .before-pane,
@@ -317,15 +328,15 @@ body.has-file .split-view:active { cursor: grabbing; }
   overflow: hidden;
 }
 .zoom-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  position: relative;
   width: 100%;
   height: 100%;
-  transform-origin: center center;
-  will-change: transform;
+  overflow: hidden;
 }
-.zoom-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; user-select: none; }
+/* img fallback — stays constrained to frame, CSS transform scales it */
+.zoom-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none; user-select: none; display: block; }
+/* inline svg — positioned absolutely with explicit px width/height set by JS, never transform-scaled */
+.zoom-wrap > svg { pointer-events: none; user-select: none; }
 .frame:empty::after {
   content: 'Preview will appear here';
   display: block;
@@ -379,6 +390,8 @@ body.has-file .split-view:active { cursor: grabbing; }
   pointer-events: none;
 }
 .pane-meta:empty { display: none; }
+.meta-embedded { color: #4ade80; }
+.meta-embedded.meta-partial { color: #fbbf24; }
 
 /* ── drag handle ── */
 .split-handle {
@@ -434,22 +447,23 @@ body.has-file .split-view:active { cursor: grabbing; }
   top: 1.25rem;
   left: 1.25rem;
   z-index: 40;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: #dc2626;
-  color: #fff;
-  border: none;
-  font-size: 1rem;
+  height: 34px;
+  padding: 0 .85rem 0 .65rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.75);
+  border: 1px solid rgba(255,255,255,.18);
+  font-size: .8rem;
+  font-family: inherit;
   cursor: pointer;
   align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 16px rgba(220,38,38,.45);
-  transition: background .15s, transform .1s;
-  font-family: inherit;
+  gap: .3rem;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background .15s, color .15s, border-color .15s;
 }
 body.has-file #close-btn { display: flex; }
-#close-btn:hover { background: #b91c1c; transform: scale(1.06); }
+#close-btn:hover { background: rgba(255,255,255,.2); color: #fff; border-color: rgba(255,255,255,.32); }
 
 /* ── HUD panels ── */
 .hud {
@@ -462,6 +476,7 @@ body.has-file #close-btn { display: flex; }
   color: #fff;
   padding: .875rem 1.1rem;
   z-index: 30;
+  touch-action: none;
 }
 .hud-left {
   bottom: 2.5rem;
@@ -493,6 +508,7 @@ body.has-file #close-btn { display: flex; }
   background: rgba(255,255,255,.04);
   border-bottom: 1px solid rgba(255,255,255,.07);
   transition: background .15s;
+  touch-action: none;
 }
 .hud-drag-bar:active { cursor: grabbing; }
 .hud-drag-bar::before {
@@ -899,12 +915,19 @@ input[type="checkbox"]:focus-visible {
 /* ── wave + samples section ── */
 .wave-section { flex-shrink: 0; }
 body.has-file .wave-section { display: none; }
-.wave-svg { display: block; width: 100%; margin-bottom: -1px; }
-.wave-section-exit {
+.wave-svg {
   display: block;
   width: 100%;
-  margin-top: -1px;
-  background: #1a0f2e;
+  margin-bottom: -2px;
+  filter: drop-shadow(0 -3px 8px rgba(0,0,0,.18));
+}
+.wave-section-exit {
+  display: block;
+  position: relative;
+  top: 1px;
+  width: 100%;
+  margin-top: -2px;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,.18));
 }
 .samples-area {
   background: #1a0f2e;
@@ -1170,10 +1193,32 @@ body.has-file .wave-features-top { display: none; }
 
 
 footer {
-  padding: 1rem 2rem;
+  padding: 1rem 2rem calc(1rem + 72px); /* clears fixed bottom wave */
   color: var(--muted);
   font-size: .85rem;
-  border-top: 1px solid var(--border);
   text-align: center;
 }
 footer a { color: var(--accent); }
+
+/* ── wave path animations ── */
+@keyframes wave-path-1 {
+  0%, 100% { d: path("M0,40 C200,90 480,10 720,50 C960,90 1200,15 1440,55 L1440,100 L0,100 Z"); }
+  50%       { d: path("M0,45 C200,85 480,15 720,45 C960,85 1200,20 1440,50 L1440,100 L0,100 Z"); }
+}
+@keyframes wave-path-2 {
+  0%, 100% { d: path("M0,50 C300,10 600,80 900,35 C1100,5 1300,60 1440,30 L1440,80 L0,80 Z"); }
+  50%       { d: path("M0,45 C300,15 600,75 900,40 C1100,10 1300,55 1440,35 L1440,80 L0,80 Z"); }
+}
+@keyframes wave-path-3 {
+  0%, 100% { d: path("M0,40 C360,80 720,0 1080,50 C1260,75 1380,25 1440,40 L1440,80 L0,80 Z"); }
+  50%       { d: path("M0,45 C360,75 720,5 1080,45 C1260,70 1380,30 1440,45 L1440,80 L0,80 Z"); }
+}
+.wave-path-1 { animation: wave-path-1 7s ease-in-out infinite; }
+.wave-path-2 { animation: wave-path-2 9s ease-in-out infinite 2s; }
+.wave-path-3 { animation: wave-path-3 8s ease-in-out infinite 0.5s; }
+
+/* ── prefers-reduced-motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .wave-path-1, .wave-path-2, .wave-path-3,
+  .dropzone { animation: none; }
+}
