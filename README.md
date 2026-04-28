@@ -32,7 +32,31 @@ This tool fixes both:
 The result is a self-contained SVG that renders consistently in any browser,
 including when used as `<img src="...">`.
 
-## Quick start
+## Why embedding beats outlining
+
+The common workaround for broken SVG fonts is to *outline* the text — converting
+every glyph to bezier paths. This works visually but has real costs:
+
+**File size.** A WOFF2 subset covering the characters in your SVG is typically
+10–40 KB, compressed. Each outlined glyph is hundreds of bytes of raw path data.
+A heading with 80 characters of a complex typeface can easily exceed 30 KB in
+paths alone — before mixed weights, descenders, or ligatures. For text-heavy
+SVGs, embedding a font is routinely *smaller* than outlining.
+
+**Accessibility.** Outlined glyphs are shapes, not text. Screen readers skip
+them. Embedded-font SVGs keep real `<text>` nodes, which screen readers,
+browser Find-in-Page, and OS-level accessibility tools can all work with natively
+— no `aria-label` workarounds required.
+
+**Machine actionability.** Search engines, language models, and translation
+tools can read and act on text nodes. Outlined paths are semantically opaque —
+just bezier curves that happen to look like letters. If you need to translate an
+SVG diagram, grep its copy, or have an LLM reason about its content, outlined
+text is a dead end.
+
+**Editability.** Text nodes can be changed programmatically or by hand.
+Outlined text is write-once.
+
 
 ```bash
 npm install

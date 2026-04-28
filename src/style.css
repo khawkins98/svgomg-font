@@ -866,6 +866,38 @@ body.has-file .wave-features-top { display: none; }
   letter-spacing: .05em;
 }
 
+/* Art 4 – outlined vs embedded compare */
+.fv-compare-wrap {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: stretch;
+}
+.fv-compare-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: 1.25rem .5rem;
+}
+.fv-compare-bad  { background: #fff1f1; }
+.fv-compare-good { background: #f5f3ff; }
+.fv-compare-divider {
+  width: 2px;
+  background: #e4e0f5;
+  flex-shrink: 0;
+}
+.fv-compare-label {
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--muted);
+}
+.fv-compare-svg { width: 72px; height: 52px; }
+
 @media (max-width: 680px) {
   .feat, .feat-flip {
     grid-template-columns: 1fr;
