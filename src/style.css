@@ -137,7 +137,6 @@ body.has-file main {
   /* angled bottom cut — diagonal "band sweep" */
   padding-bottom: 5vw;
   padding-top: 5vw;
-  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 10vw), 0 100%);
 }
 
 /* Remove header's bottom border so it merges into the dark upload strip */
@@ -158,11 +157,11 @@ body.has-file header h1 { font-size: 1.2rem; }
 body.has-file .brand-row { margin-bottom: 0; }
 
 .dropzone {
-  width: 280px;
-  height: 280px;
-  border: none;
-  border-radius: 62% 58% 54% 60% / 58% 62% 60% 56%;
-  padding: 2rem;
+  width: min(420px, 90%);
+  height: auto;
+  border: 2px dashed rgba(255,255,255,.35);
+  border-radius: 1.25rem;
+  padding: 2.25rem 2rem 2rem;
   background: var(--accent);
   color: #fff;
   text-align: center;
@@ -170,24 +169,21 @@ body.has-file .brand-row { margin-bottom: 0; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  animation: blob-drift 8s ease-in-out infinite;
-  transition: transform .25s, background .2s;
-  box-shadow: 0 20px 60px rgba(124,58,237,.4);
+  gap: .1rem;
+  transition: transform .2s, background .2s, border-color .2s, box-shadow .2s;
+  box-shadow: 0 16px 48px rgba(124,58,237,.35);
+}
+.dropzone:hover {
+  border-color: rgba(255,255,255,.6);
+  box-shadow: 0 20px 60px rgba(124,58,237,.5);
 }
 .dropzone.drag {
   background: #6d28d9;
-  transform: scale(1.06);
-  animation-play-state: paused;
+  border-color: rgba(255,255,255,.8);
+  transform: scale(1.03);
+  box-shadow: 0 24px 64px rgba(124,58,237,.6);
 }
 .dropzone p { margin: .2rem 0; color: rgba(255,255,255,.92); font-size: .9rem; }
-
-@keyframes blob-drift {
-  0%,100% { border-radius: 62% 58% 54% 60% / 58% 62% 60% 56%; }
-  25%      { border-radius: 56% 64% 58% 54% / 62% 56% 64% 60%; }
-  50%      { border-radius: 58% 56% 62% 58% / 60% 64% 56% 62%; }
-  75%      { border-radius: 64% 58% 56% 62% / 56% 60% 62% 58%; }
-}
 
 body.has-file .dropzone { display: none; }
 
@@ -229,7 +225,7 @@ body:not(.has-file) .file-button--ghost {
 body:not(.has-file) .file-button--ghost:hover { background: rgba(255,255,255,.12); color: #fff; }
 
 .dropzone-actions { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; }
-.dropzone-hint { font-size: .78rem; color: rgba(255,255,255,.5); margin: .25rem 0 0; }
+.dropzone-hint { font-size: .78rem; color: rgba(255,255,255,.5); margin: .5rem 0 0; white-space: nowrap; }
 .dropzone-hint kbd { font-family: inherit; background: rgba(255,255,255,.12); border-radius: 3px; padding: .1em .35em; font-size: .85em; }
 .dropzone-error { font-size: .8rem; color: #fbbf24; margin: .4rem 0 0; }
 
@@ -1200,7 +1196,7 @@ body.has-file .wave-features-top { display: none; }
 
   /* Hero strip */
   .upload-strip { padding-bottom: 12vw; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18vw), 0 100%); }
-  .dropzone { width: 220px; height: 220px; }
+  .dropzone { width: min(320px, 88%); }
 
   /* Viewer HUDs: on mobile, options panel moves to top-right so both panels
      don't collide at the bottom. */
@@ -1251,8 +1247,7 @@ footer a { color: var(--accent); }
 
 /* ── prefers-reduced-motion ── */
 @media (prefers-reduced-motion: reduce) {
-  .wave-path-1, .wave-path-2, .wave-path-3,
-  .dropzone { animation: none; }
+  .wave-path-1, .wave-path-2, .wave-path-3 { animation: none; }
 }
 
 /* ── accessibility ── */
