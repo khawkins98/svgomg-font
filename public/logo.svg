@@ -20,18 +20,19 @@
   <!-- accent bar -->
   <rect x="48" y="52" width="4" height="56" rx="2" fill="url(#accent-grad)"/>
 
-  <!-- main title -->
-  <text x="66" y="88" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif" font-size="46" font-weight="700" letter-spacing="-1" fill="white">SVGOMG</text>
-  <text x="330" y="88" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif" font-size="46" font-weight="700" letter-spacing="-1" fill="#a78bfa">-Font</text>
+  <!-- main title: single text element so tspans flow without gaps -->
+  <text x="66" y="90" font-family="Georgia, 'Times New Roman', serif" font-size="48" font-weight="700" letter-spacing="-0.5">
+    <tspan fill="white">SVGOMG</tspan><tspan fill="#a78bfa">-Font</tspan>
+  </text>
 
   <!-- tagline -->
-  <text x="66" y="124" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif" font-size="19" fill="rgba(255,255,255,0.72)">Stop shipping SVGs with broken text.</text>
+  <text x="66" y="126" font-family="Georgia, 'Times New Roman', serif" font-size="18" fill="rgba(255,255,255,0.72)">Stop shipping SVGs with broken text.</text>
 
   <!-- pill badge -->
   <rect x="66" y="148" width="185" height="28" rx="14" fill="rgba(124,58,237,0.35)" stroke="rgba(167,139,250,0.45)" stroke-width="1"/>
-  <text x="153" y="167" font-family="system-ui,-apple-system,'Segoe UI',Roboto,sans-serif" font-size="13" font-weight="500" fill="#d4b8ff" text-anchor="middle">Runs entirely in your browser</text>
+  <text x="153" y="167" font-family="Georgia, 'Times New Roman', serif" font-size="13" fill="#d4b8ff" text-anchor="middle">Runs entirely in your browser</text>
 
-  <!-- small decorative SVG icon on right -->
+  <!-- decorative SVG icon -->
   <g transform="translate(740, 50)" opacity="0.18">
     <rect width="120" height="120" rx="18" fill="none" stroke="white" stroke-width="3"/>
     <text x="60" y="68" font-family="monospace" font-size="22" font-weight="700" fill="white" text-anchor="middle">&lt;svg&gt;</text>
