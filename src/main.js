@@ -21,6 +21,7 @@ const els = {
   optStrip: $('#opt-strip-svg-fonts'),
   optBgColor: $('#opt-bg-color'),
   download: $('#download'),
+  copyBtn: $('#copy-btn'),
   fontUploads: $('#font-uploads'),
   before: $('#before'),
   after: $('#after'),
@@ -98,7 +99,7 @@ function stepZoom(f) { svgZoom = Math.max(0.05, Math.min(20, svgZoom * f)); appl
 
 function loadPastedSvg(text) {
   sourceName = 'pasted.svg';
-  currentName = 'pasted.web.svg';
+  currentName = 'pasted-embedded.svg';
   setInput(text);
 }
 
@@ -247,6 +248,7 @@ function closeFile() {
   els.fontUploads.hidden = true;
   els.loadedName.textContent = '';
   els.download.hidden = true;
+  els.copyBtn.hidden = true;
   els.splitView.style.removeProperty('--split'); // reset to CSS default 50%
   document.body.classList.remove('has-file');
 }
@@ -381,6 +383,18 @@ function init() {
   });
   els.download.addEventListener('click', download);
 
+  els.copyBtn.addEventListener('click', async () => {
+    if (!processedSvg) return;
+    try {
+      await navigator.clipboard.writeText(processedSvg);
+      const original = els.copyBtn.textContent;
+      els.copyBtn.textContent = '✓ Copied!';
+      setTimeout(() => { els.copyBtn.textContent = original; }, 1500);
+    } catch {
+      log('err', 'Copy failed — try Cmd+V to paste manually.');
+    }
+  });
+
   // Keyboard shortcuts for zoom: Cmd/Ctrl + =|+ (zoom in), - (zoom out), 0 (reset)
   document.addEventListener('keydown', (e) => {
     if (!document.body.classList.contains('has-file')) return;
@@ -394,9 +408,16 @@ function init() {
   // Paste SVG from clipboard (Cmd+V or Ctrl+V anywhere on the page)
   document.addEventListener('paste', (e) => {
     if (e.target instanceof Element && e.target.closest('input,textarea,select,[contenteditable]')) return;
+    const items = Array.from(e.clipboardData?.items ?? []);
     const text = e.clipboardData?.getData('text') ?? '';
+    const svgItem = items.find(it => it.type === 'image/svg+xml');
+    const imageItem = items.find(it => /^image\/(png|jpeg|gif|webp|bmp)$/.test(it.type));
+
+    if (imageItem && !svgItem && !/<svg[\s>]/i.test(text)) {
+      showDropzoneError('Looks like you copied an image — paste SVG markup instead, or drop an .svg file here.');
+      return;
+    }
     if (/<svg[\s>]/i.test(text)) { e.preventDefault(); loadPastedSvg(text); return; }
-    const svgItem = Array.from(e.clipboardData?.items ?? []).find(it => it.type === 'image/svg+xml');
     if (svgItem) { e.preventDefault(); svgItem.getAsString(loadPastedSvg); }
   });
 
@@ -448,13 +469,13 @@ async function loadFile(file) {
     return;
   }
   sourceName = file.name;
-  currentName = file.name.replace(/\.svg$/i, '') + '.web.svg';
+  currentName = file.name.replace(/\.svg$/i, '') + '-embedded.svg';
   setInput(text);
 }
 
 async function loadSample(sample) {
   sourceName = sample.file;
-  currentName = sample.file.replace(/\.svg$/i, '') + '.web.svg';
+  currentName = sample.file.replace(/\.svg$/i, '') + '-embedded.svg';
   // Honor Vite's `base` config so this works under a subpath deploy (e.g. /svgomg-font/).
   const base = import.meta.env.BASE_URL.replace(/\/$/, '');
   const res = await fetch(`${base}/samples/${sample.file}`);
@@ -471,6 +492,7 @@ function setInput(text) {
   els.fontUploads.innerHTML = '';
   els.fontUploads.hidden = true;
   els.download.hidden = true;
+  els.copyBtn.hidden = true;
   els.loadedName.textContent = sourceName;
   renderInto(els.before, text);
   els.beforeMeta.textContent = describe(text);
@@ -609,6 +631,7 @@ async function process() {
     renderInto(els.after, out);
     els.afterMeta.innerHTML = describeAfter(out, embeddedCount, anyMissing);
     els.download.hidden = false;
+    els.copyBtn.hidden = false;
 
     if (noFontFound) {
       // Rich warning — this SVG has no fonts for us to fix
@@ -829,7 +852,35 @@ function buildUploadUI(svgText, missingFamilies) {
       uploadBtn.className = 'upload-face-btn';
       uploadBtn.textContent = 'Upload font';
       uploadBtn.addEventListener('click', () => triggerFontUpload(face));
-      row.append(label, uploadBtn);
+      const dragHint = document.createElement('span');
+      dragHint.className = 'upload-drag-hint';
+      dragHint.textContent = 'or drag here';
+      row.append(label, uploadBtn, dragHint);
+
+      row.addEventListener('dragover', (ev) => {
+        if ([...ev.dataTransfer.types].includes('Files')) {
+          ev.preventDefault();
+          row.classList.add('drag-over');
+        }
+      });
+      row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+      row.addEventListener('drop', async (ev) => {
+        ev.preventDefault();
+        row.classList.remove('drag-over');
+        const droppedFile = ev.dataTransfer.files?.[0];
+        if (!droppedFile) return;
+        if (!/\.(woff2?|ttf|otf)$/i.test(droppedFile.name)) {
+          log('err', `"${droppedFile.name}" is not a font file. Drop a .woff2, .ttf, or .otf file.`);
+          return;
+        }
+        try {
+          const fontObj = await readFontFile(droppedFile, face);
+          userFonts.set(faceKey(face), fontObj);
+          process();
+        } catch (err) {
+          log('err', `Font upload failed: ${err.message}`);
+        }
+      });
     }
 
     container.appendChild(row);
