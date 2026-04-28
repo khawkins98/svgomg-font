@@ -105,6 +105,10 @@ main {
   flex: 1;
 }
 
+body:not(.has-file) main {
+  background: #1a0f2e;
+}
+
 body.has-file main {
   flex: 1;
   min-height: 0;
