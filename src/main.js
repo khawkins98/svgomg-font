@@ -36,6 +36,7 @@ const SAMPLES = [
   { id: 'open-sans-list', name: 'Open Sans list',        hint: 'no system fallback',    file: 'open-sans-list.svg' },
   { id: 'lato-mixed',     name: 'Lato regular + bold',   hint: 'mixed weights',         file: 'lato-mixed.svg' },
   { id: 'inter-headline', name: 'Inter headline',        hint: 'modern sans-serif',     file: 'inter-headline.svg' },
+  { id: 'helvetica-neue', name: 'Helvetica Neue report', hint: 'font not on Fontsource', file: 'helvetica-neue-report.svg' },
 ];
 
 let currentSvg = null;
@@ -205,6 +206,7 @@ async function process() {
   let out = currentSvg;
   const lines = [];
   let noFontFound = false;
+  let anyMissing = false;
 
   try {
     if (opts.strip && hasDeprecatedSvgFonts(out)) {
@@ -230,6 +232,7 @@ async function process() {
             fonts.push(r);
             lines.push(`  ✓ ${families[i]} (${r.bytes.toLocaleString()} bytes raw)`);
           } else {
+            anyMissing = true;
             lines.push(`  ✗ ${families[i]} — not found on Fontsource`);
           }
         }
@@ -268,6 +271,17 @@ async function process() {
         extra.textContent = '\n' + lines.join('\n');
         els.report.appendChild(extra);
       }
+    } else if (anyMissing) {
+      // Some fonts resolved, some didn't — warn rather than silently succeed
+      els.report.innerHTML = '';
+      const warn = document.createElement('span');
+      warn.className = 'warn';
+      warn.innerHTML =
+        'One or more fonts could not be found on Fontsource.\n' +
+        'Only open-source fonts (e.g. Google Fonts) are available.\n' +
+        'Commercial fonts (Helvetica, Futura, Proxima Nova …) cannot be auto-embedded.\n\n' +
+        lines.join('\n');
+      els.report.appendChild(warn);
     } else {
       log('ok', lines.join('\n'));
     }

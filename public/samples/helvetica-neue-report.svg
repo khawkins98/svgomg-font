@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 220">
+  <style><![CDATA[
+    .bg   { fill: #1a1a2e; }
+    .card { fill: #ffffff; }
+    .h    { font-family: "Helvetica Neue", Helvetica; font-size: 18px; font-weight: 700; fill: #1a1a2e; }
+    .sub  { font-family: "Helvetica Neue", Helvetica; font-size: 11px; fill: #666; }
+    .val  { font-family: "Helvetica Neue", Helvetica; font-size: 36px; font-weight: 700; fill: #e63946; }
+    .label{ font-family: "Helvetica Neue", Helvetica; font-size: 10px; fill: #999; letter-spacing: 1px; }
+  ]]></style>
+  <rect class="bg" width="400" height="50"/>
+  <rect class="card" x="0" y="50" width="400" height="170"/>
+  <text x="20" y="34" class="h" fill="#fff">Monthly Report</text>
+  <text x="20" y="95" class="val">$84,200</text>
+  <text x="20" y="115" class="sub">Revenue — April 2026</text>
+  <text x="20" y="155" class="val" font-size="28">+12.4%</text>
+  <text x="20" y="175" class="sub">vs previous month</text>
+  <text x="20" y="207" class="label">HELVETICA NEUE · COMMERCIAL FONT · NOT ON FONTSOURCE</text>
+</svg>
