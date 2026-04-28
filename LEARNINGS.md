@@ -125,8 +125,93 @@ fonts and read TTF data. It's:
 - Returns TTF, not woff2 — you'd need to convert in-browser via wasm
   (e.g. `wawoff2`) before embedding
 
-Could be a "use what's installed" mode later, but the Fontsource path
-covers 95% of real-world cases without the permission friction.
+We've now implemented this as the primary "missing font" resolution path.
+When the user drops an SVG with unrecognised fonts, the tool queries local
+fonts once, caches them in `userFonts`, and converts them on the fly.
+
+## `queryLocalFonts()` exposes `.postscriptName` — use it
+
+Each `FontData` entry from `queryLocalFonts()` has four key fields:
+
+| Field            | Example value         |
+| ---------------- | --------------------- |
+| `.family`        | `"Marker Felt"`       |
+| `.style`         | `"Wide"`              |
+| `.fullName`      | `"Marker Felt Wide"`  |
+| `.postscriptName`| `"MarkerFelt-Wide"`   |
+
+SVG editors almost always embed the **PostScript name** in `font-family`
+(e.g. `font-family="MarkerFelt-Wide"`). The natural matching field is
+therefore `.postscriptName`, not `.family`. Matching only against `.family`
+means `"MarkerFelt-Wide"` never resolves to `"Marker Felt"`. Check
+`.postscriptName` first; fall back to `.family` for fonts that use plain
+human-readable names.
+
+## PostScript name suffixes in font family names
+
+macOS and Adobe apps append suffixes to PostScript names that are not
+weight keywords:
+
+| Suffix | Meaning                        | Example                 |
+| ------ | ------------------------------ | ----------------------- |
+| `PSMT` | PostScript Metric              | `CourierNewPSMT`        |
+| `MT`   | Metric / Monotype (on a weight)| `BoldMT` → weight 700   |
+| `PS`   | PostScript                     | `CourierNewPS`          |
+
+When parsing weight from a name token, strip these suffixes before the
+weight-keyword lookup, otherwise `"BoldMT"` isn't recognised as bold.
+When normalising a family name for display/matching, strip them and split
+CamelCase so `"CourierNewPSMT"` → `"Courier New"`.
+
+## CSS `background` vs SVG `fill` at seam boundaries
+
+When a `<svg>` element carries `background: #color` via CSS *and* contains
+a path with the same `fill`, browsers render them through different engines.
+Sub-pixel anti-aliasing differences produce a 1 px bleed line at the seam
+between adjacent `background` and `fill` regions (visible as a thin dark
+line or gap, especially where SVG waves meet a page section).
+
+Fix: don't use CSS `background` on the SVG element. Instead, add a
+`<rect width="100%" height="100%" fill="#color"/>` as the first child —
+both the rect and the path are now rendered by the same SVG compositor,
+eliminating the seam.
+
+## CSS `d: path()` for animating SVG path shapes
+
+You can morph an SVG path purely in CSS using keyframes on the `d`
+property:
+
+```css
+@keyframes wave-bob {
+  0%   { d: path("M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z"); }
+  50%  { d: path("M0,20 C360,60 1080,20 1440,40 L1440,80 L0,80 Z"); }
+  100% { d: path("M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z"); }
+}
+.wave-path { animation: wave-bob 7s ease-in-out infinite; }
+```
+
+Keep the bottom rectangle (`L1440,N L0,N Z`) identical in every keyframe
+or the wave bottom will drift and create gaps. Supported Chrome 88+,
+Firefox 72+, Safari 16.4+. Pair with `@media (prefers-reduced-motion: reduce)`
+to disable for users who've opted out.
+
+## SVG `<text>` + `<tspan>` for mixed-colour text
+
+Positioning two separate `<text>` elements at guessed `x` coordinates always
+produces a visual gap — SVG text doesn't flow. Use one `<text>` with two
+`<tspan>` children instead; inline `<tspan>` elements flow naturally and
+require no x coordinate for the second span:
+
+```svg
+<!-- ❌ gap-prone -->
+<text x="66" fill="white">SVGOMG</text>
+<text x="330" fill="#a78bfa">-Font</text>
+
+<!-- ✅ gapless -->
+<text x="66">
+  <tspan fill="white">SVGOMG</tspan><tspan fill="#a78bfa">-Font</tspan>
+</text>
+```
 
 ## A loose regex eats minified CSS for breakfast
 
