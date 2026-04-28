@@ -5,9 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SVGOMG-Font — fix broken SVG fonts</title>
     <meta name="description" content="&quot;OMG, my SVG fonts are broken!&quot; Drop your SVG here — get back one with fonts embedded as base64 woff2, so it renders perfectly everywhere, even inside an &lt;img&gt; tag." />
+    <!-- Open Graph -->
     <meta property="og:title" content="SVGOMG-Font — fix broken SVG fonts" />
     <meta property="og:description" content="&quot;OMG, my SVG fonts are broken!&quot; Drop your SVG here — get back one with fonts embedded as base64 woff2, so it renders perfectly everywhere, even inside an &lt;img&gt; tag." />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://khawkins98.github.io/svgomg-font/" />
+    <meta property="og:image" content="https://khawkins98.github.io/svgomg-font/og-image.svg" />
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SVGOMG-Font — fix broken SVG fonts" />
+    <meta name="twitter:description" content="Drop your SVG here — get back one with fonts embedded as base64 woff2. Works in &lt;img&gt; tags, emails, everywhere." />
+    <meta name="twitter:image" content="https://khawkins98.github.io/svgomg-font/og-image.svg" />
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/svgomg-font/favicon.svg" />
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
@@ -286,6 +296,31 @@
         <li>Strip any now-redundant <code>&lt;font&gt;</code> elements</li>
       </ol>
       <p>SVGOMG-Font does all of that in your browser, in seconds.</p>
+
+      <h3>Why embedding beats outlining</h3>
+      <p>
+        The other common fix is to convert text to outlines (paths) — but that trades one
+        problem for several new ones:
+      </p>
+      <ul>
+        <li>
+          <strong>File size</strong> — WOFF2 is heavily compressed binary. Outlined glyphs
+          are verbose path data. For body-weight text, embedding is often <em>smaller</em>.
+        </li>
+        <li>
+          <strong>Accessibility</strong> — Real <code>&lt;text&gt;</code> nodes are read
+          by screen readers, selectable, and copy-pasteable. Paths are invisible blobs.
+        </li>
+        <li>
+          <strong>Machine readability</strong> — Search engines, language models, translation
+          services, and automated pipelines all understand text. They do not understand
+          bezier curves.
+        </li>
+        <li>
+          <strong>Editability</strong> — Need to fix a typo later? Change a word? Easy with
+          live text. Impossible in a path without re-generating the whole file.
+        </li>
+      </ul>
     </dialog>
 
     <script type="module" src="/src/main.js"></script>

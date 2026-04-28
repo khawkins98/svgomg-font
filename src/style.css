@@ -910,6 +910,40 @@ body.has-file .wave-features-top { display: none; }
   .features-inner { gap: 1.25rem; padding: 2rem 1rem 4rem; }
 }
 
+/* ── Mobile layout ── */
+@media (max-width: 500px) {
+  /* Header */
+  header { padding: 1rem 1.1rem .9rem; }
+  header h1 { font-size: 1.25rem; }
+  .tagline { font-size: .85rem; }
+  .badges { gap: 2px; margin-top: .6rem; }
+  .badge { font-size: .6rem; padding: .25rem .7rem .23rem .6rem; }
+
+  /* Hero strip */
+  .upload-strip { padding-bottom: 12vw; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18vw), 0 100%); }
+  .dropzone { width: 220px; height: 220px; }
+
+  /* Viewer HUDs: on mobile, options panel moves to top-right so both panels
+     don't collide at the bottom. */
+  .hud-right {
+    bottom: auto;
+    top: 1.5rem;
+    right: 1rem;
+    left: auto;
+    max-width: calc(100vw - 5.5rem); /* avoid overlapping the close button */
+  }
+  .hud-left {
+    bottom: 1rem;
+    left: .75rem;
+    right: .75rem;
+    min-width: unset;
+    max-width: unset;
+  }
+
+  /* About dialog */
+  dialog { padding: 1.5rem 1.1rem; max-height: 90vh; overflow-y: auto; }
+}
+
 
 footer {
   padding: 1rem 2rem;

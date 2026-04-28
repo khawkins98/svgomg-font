@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1a0f2e"/>
+      <stop offset="100%" stop-color="#2e1065"/>
+    </linearGradient>
+    <linearGradient id="badge" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#9333ea"/>
+      <stop offset="100%" stop-color="#5b21b6"/>
+    </linearGradient>
+  </defs>
+
+  <!-- background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- subtle dot grid -->
+  <pattern id="dots" width="40" height="40" patternUnits="userSpaceOnUse">
+    <circle cx="20" cy="20" r="1.2" fill="rgba(255,255,255,.07)"/>
+  </pattern>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+
+  <!-- wave accent at bottom -->
+  <path d="M0,550 C200,510 400,590 600,545 C800,500 1000,580 1200,540 L1200,630 L0,630 Z"
+        fill="rgba(109,40,217,.35)"/>
+  <path d="M0,580 C300,545 600,600 900,565 C1050,548 1150,570 1200,560 L1200,630 L0,630 Z"
+        fill="rgba(124,58,237,.25)"/>
+
+  <!-- title -->
+  <text x="100" y="240" font-family="Georgia, serif" font-size="90" font-weight="bold"
+        fill="#ffffff" letter-spacing="-2">SVG</text>
+  <text x="355" y="240" font-family="Georgia, serif" font-size="90" font-weight="bold"
+        fill="#a78bfa" letter-spacing="-2">OMG</text>
+  <text x="530" y="240" font-family="Georgia, serif" font-size="90" font-weight="bold"
+        fill="#ffffff" letter-spacing="-2">-Font</text>
+
+  <!-- tagline -->
+  <text x="100" y="310" font-family="system-ui, sans-serif" font-size="34"
+        fill="rgba(255,255,255,.72)" letter-spacing=".2">Fix broken fonts in SVG files — in your browser, in seconds.</text>
+
+  <!-- badges row -->
+  <g transform="translate(100, 370)">
+    <!-- badge 1 -->
+    <g transform="skewX(-11)">
+      <rect width="170" height="36" fill="url(#badge)" rx="0"/>
+      <text x="85" y="24" text-anchor="middle" font-family="system-ui, sans-serif"
+            font-size="14" font-weight="800" fill="#fff" letter-spacing="2"
+            text-transform="uppercase">EMBEDS WOFF2</text>
+    </g>
+    <!-- badge 2 -->
+    <g transform="translate(185,0) skewX(-11)">
+      <rect width="170" height="36" fill="url(#badge)" rx="0"/>
+      <text x="85" y="24" text-anchor="middle" font-family="system-ui, sans-serif"
+            font-size="14" font-weight="800" fill="#fff" letter-spacing="2">WORKS IN &lt;img&gt;</text>
+    </g>
+    <!-- badge 3 -->
+    <g transform="translate(370,0) skewX(-11)">
+      <rect width="170" height="36" fill="url(#badge)" rx="0"/>
+      <text x="85" y="24" text-anchor="middle" font-family="system-ui, sans-serif"
+            font-size="14" font-weight="800" fill="#fff" letter-spacing="2">ZERO UPLOAD</text>
+    </g>
+  </g>
+
+  <!-- "Aa" decorative right side -->
+  <text x="980" y="400" font-family="Georgia, serif" font-size="300" font-weight="bold"
+        fill="rgba(167,139,250,.12)" text-anchor="middle">Aa</text>
+</svg>
