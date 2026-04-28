@@ -966,17 +966,27 @@ async function tryLocalFonts(allFaces, missingFamilies) {
 }
 
 function renderInto(node, text) {
-  // Render via an <img> so any @font-face rules in <style> are exercised
-  // the same way the SVG would be when used as an image elsewhere.
-  const blob = new Blob([text], { type: 'image/svg+xml' });
-  const url = URL.createObjectURL(blob);
   node.innerHTML = '';
   const wrap = document.createElement('div');
   wrap.className = 'zoom-wrap';
-  const img = document.createElement('img');
-  img.src = url;
-  img.onload = () => URL.revokeObjectURL(url);
-  wrap.appendChild(img);
+
+  const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
+  const svgEl = doc.documentElement;
+  if (svgEl.nodeName === 'svg' && !svgEl.querySelector('parsererror')) {
+    // Inline SVG stays vector at any zoom level — never pixelates.
+    // The <img> approach rasterised at CSS size; transform:scale just scaled that bitmap.
+    const imported = document.importNode(svgEl, true);
+    wrap.appendChild(imported);
+  } else {
+    // Parse error fallback: blob URL <img>
+    const blob = new Blob([text], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const img = document.createElement('img');
+    img.src = url;
+    img.onload = () => URL.revokeObjectURL(url);
+    wrap.appendChild(img);
+  }
+
   node.appendChild(wrap);
   applySvgTransform();
 }
