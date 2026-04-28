@@ -172,20 +172,21 @@ function init() {
   });
   els.download.addEventListener('click', download);
 
-  // Branded boot banner
+  // Branded boot banner — plain text, no %c; # and space only = consistent in any monospace font
   console.log(
-    `%c
- ____    __   __    ____     ___    __  __    ____   _
-/ ___|   \\ \\ / /   / ___|   / _ \\  |  \\/  |  / ___| | |
-\\___ \\    \\ V /   | |  _  | | | | | |\\/| | | |  _  | |
- ___) |    \\_/    | |_| | | |_| | | |  | | | |_| | |_|
-|____/             \\____|   \\___/  |_|  |_|  \\____| (_)
+`<!--
+ #####  #     #  #####  ####### #     #  #####  ###
+#     # #     # #     # #     # ##   ## #     # ###
+#       #     # #       #     # # # # # #       ###
+ #####  #     # #  #### #     # #  #  # #  ####  #
+      #  #   #  #     # #     # #     # #     #
+#     #   # #   #     # #     # #     # #     # ###
+ #####     #     #####  ####### #     #  #####  ###
 
-  Oh My Goodness... Fonts!  ✦
+  Oh My Goodness... Fonts! ✦
   Open-source SVG font embedder
   github.com/khawkins98/svgomg-font
-`,
-    'color:#a78bfa;background:#1e1b2e;font-family:monospace;font-size:11px;line-height:1.6;padding:10px 14px;border-radius:6px;white-space:pre',
+-->`
   );
   const hasChr = 'queryLocalFonts' in window;
   clog(hasChr ? 'local' : 'warn',
