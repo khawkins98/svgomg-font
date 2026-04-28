@@ -272,7 +272,8 @@ function init() {
     if (!document.body.classList.contains('has-file')) return;
     if (e.target.closest('.hud, .split-handle')) return;
     e.preventDefault();
-    const factor = e.deltaY < 0 ? 1.1 : 1 / 1.1;
+    const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
+    const factor = delta < 0 ? 1.1 : 1 / 1.1;
     const r = els.splitView.getBoundingClientRect();
     // Keep the point under the cursor stationary during zoom
     const cx = e.clientX - r.left - r.width  / 2;
