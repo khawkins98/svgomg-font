@@ -923,6 +923,8 @@ body.has-file .wave-section { display: none; }
 }
 .wave-section-exit {
   display: block;
+  position: relative;
+  top: 1px;
   width: 100%;
   margin-top: -2px;
   filter: drop-shadow(0 4px 10px rgba(0,0,0,.18));
