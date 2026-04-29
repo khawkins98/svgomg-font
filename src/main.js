@@ -63,8 +63,23 @@ function applySvgTransform() {
     if (!child) return;
 
     if (child.tagName.toLowerCase() !== 'svg') {
-      // <img> fallback (parse error): CSS transform is fine, img won't zoom crisply but it's a fallback
-      wrap.style.transform = `translate(${svgPanX}px, ${svgPanY}px) scale(${svgZoom})`;
+      // <img>: before pane (font isolation) and parse-error fallback.
+      // Use the same absolute-positioning approach as inline SVG so zoom/pan behave identically.
+      const fw = wrap.clientWidth, fh = wrap.clientHeight;
+      if (!fw || !fh) { requestAnimationFrame(applySvgTransform); return; }
+      const iw = parseFloat(wrap.dataset.svgW) || fw;
+      const ih = parseFloat(wrap.dataset.svgH) || fh;
+      const fit = Math.min(fw / iw, fh / ih);
+      const dw = iw * fit * svgZoom, dh = ih * fit * svgZoom;
+      wrap.style.transform  = '';
+      child.style.display   = 'block';
+      child.style.position  = 'absolute';
+      child.style.maxWidth  = 'none';
+      child.style.maxHeight = 'none';
+      child.style.width     = `${dw}px`;
+      child.style.height    = `${dh}px`;
+      child.style.left      = `${fw / 2 - dw / 2 + svgPanX}px`;
+      child.style.top       = `${fh / 2 - dh / 2 + svgPanY}px`;
       return;
     }
 
@@ -518,7 +533,7 @@ function setInput(text) {
   els.download.hidden = true;
   els.copyBtn.hidden = true;
   els.loadedName.textContent = sourceName;
-  renderInto(els.before, text);
+  renderInto(els.before, text, { isolate: true });
   els.beforeMeta.textContent = describe(text);
   els.after.innerHTML = '';
   els.afterMeta.textContent = '';
@@ -1145,20 +1160,27 @@ async function tryLocalFonts(allFaces, missingFamilies) {
   localFontCheckResult = foundAny ? 'found' : 'notfound';
 }
 
-function renderInto(node, text) {
+function renderInto(node, text, { isolate = false } = {}) {
   node.innerHTML = '';
   const wrap = document.createElement('div');
   wrap.className = 'zoom-wrap';
 
   const doc = new DOMParser().parseFromString(text, 'image/svg+xml');
   const svgEl = doc.documentElement;
-  if (svgEl.nodeName === 'svg' && !svgEl.querySelector('parsererror')) {
+  if (!isolate && svgEl.nodeName === 'svg' && !svgEl.querySelector('parsererror')) {
     // Inline SVG stays vector at any zoom level — never pixelates.
-    // The <img> approach rasterised at CSS size; transform:scale just scaled that bitmap.
     const imported = document.importNode(svgEl, true);
     wrap.appendChild(imported);
   } else {
-    // Parse error fallback: blob URL <img>
+    // Blob URL <img>: used for the "before" pane (isolate=true) so that @font-face rules
+    // embedded in the "after" inline SVG cannot leak into the before preview, and as a
+    // parse-error fallback. SVG-as-img cannot inherit @font-face from the host document.
+    // Store intrinsic SVG dimensions so applySvgTransform can size/position it correctly.
+    const vbI = svgEl.viewBox?.baseVal;
+    const waI = parseFloat(svgEl.getAttribute('width'))  || 0;
+    const haI = parseFloat(svgEl.getAttribute('height')) || 0;
+    if (vbI?.width && vbI?.height)           { wrap.dataset.svgW = vbI.width;  wrap.dataset.svgH = vbI.height; }
+    else if (waI && haI && waI < 1e5)        { wrap.dataset.svgW = waI;         wrap.dataset.svgH = haI;        }
     const blob = new Blob([text], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
     const img = document.createElement('img');
