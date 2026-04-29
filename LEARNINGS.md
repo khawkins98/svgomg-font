@@ -240,3 +240,44 @@ braces in it.
 Even tiny repos benefit from a stated commit convention from day one. It
 costs nothing to follow and makes `git log` readable; retrofitting it
 later is a slog. We've documented it in `CONTRIBUTING.md`.
+
+## wawoff2 + HarfBuzz subsetting hangs in Vite browser bundles
+
+The original subsetting pipeline was: fetch font → decompress woff2 via
+`wawoff2` → subset with `harfbuzzjs` → re-compress with `wawoff2`.
+
+This worked in Node.js but **hung silently in Vite browser bundles**.
+
+Root cause: `wawoff2/decompress.js` is an Emscripten-generated module. It
+attaches a callback via `em_module.onRuntimeInitialized = resolve` and
+waits for that Promise. In Node.js the Emscripten WASM initialises in a
+later microtask tick, so `resolve` is assigned before the callback fires.
+In Vite's CJS→ESM transform the module evaluates synchronously during
+import, fires `onRuntimeInitialized` *before* the Promise constructor
+runs, and the callback is lost — `resolve` is never called, so
+`await runtimeInit` waits forever and the whole processing pipeline stalls.
+
+Two replacements were tried:
+
+- **`subset-font`** — calls `fs.readFile()` to load `hb-subset.wasm` from
+  disk. Node.js-only; fails at runtime in a browser bundle even if `fs` is
+  externalised.
+
+- **`fontkit`** (v2 `browser-module.mjs`) — browser-native, handles TTF,
+  OTF, WOFF, and WOFF2 as input, exposes a `createSubset()` API, zero WASM.
+  Chosen as the replacement.
+
+Two gotchas discovered during the fontkit migration:
+
+1. **Named exports only** — `import fontkit from 'fontkit'` fails with
+   "default is not exported". Use `import { create } from 'fontkit'`.
+
+2. **Output is always TTF/sfnt**, not woff2. CSS `format()` hint must be
+   `truetype`, MIME type `font/truetype`. Still valid for SVG `@font-face`.
+
+Bundle size dropped from ~1.4 MB to ~395 KB (main chunk) after removing
+`harfbuzzjs`, `wawoff2`, and `subset-font`.
+
+fontkit is ~390 KB and only needed when subsetting runs, so it is
+loaded via a dynamic `import('fontkit')` inside `subsetFontIfPossible()`
+rather than at module parse time — keeping the initial page load lean.

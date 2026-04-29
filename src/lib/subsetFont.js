@@ -4,10 +4,10 @@
  * Uses fontkit which parses TTF, OTF, WOFF, and WOFF2 natively and produces
  * a subsetted font containing only the requested codepoints.
  *
+ * fontkit is loaded lazily on first call so it doesn't bloat the initial bundle.
+ *
  * Falls back to the original fontObj silently on any error.
  */
-
-import { create as fontkitCreate } from 'fontkit';
 
 /**
  * Extract all Unicode codepoints used in text-bearing SVG elements, plus
@@ -71,6 +71,7 @@ function bytesToB64(bytes) {
  */
 export async function subsetFontIfPossible(fontObj, codepoints) {
   try {
+    const { create: fontkitCreate } = await import('fontkit');
     const fontBuffer = b64ToBuffer(fontObj.base64);
 
     // fontkit.create() accepts a Buffer/Uint8Array and handles
