@@ -10,8 +10,8 @@ let optimizeFn = null;
 
 async function loadSvgo() {
   if (optimizeFn) return optimizeFn;
-  // SVGO 3.x has no `exports` field, so we point at the prebuilt browser bundle directly.
-  const mod = await import('svgo/dist/svgo.browser.js');
+  // SVGO 4.x exposes the browser bundle via the `svgo/browser` export condition.
+  const mod = await import('svgo/browser');
   optimizeFn = mod.optimize;
   return optimizeFn;
 }
