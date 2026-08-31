@@ -1,10 +1,10 @@
-<a href="https://khawkins98.github.io/svgomg-font/">
+<a href="https://www.allaboutken.com/svgomg-font/">
   <img src="public/logo.svg" alt="SVGOMG-Font — Stop shipping SVGs with broken text" width="900"/>
 </a>
 
 # SVGOMG-Font
 
-**[Try it live →](https://khawkins98.github.io/svgomg-font/)**
+**[Try it live →](https://www.allaboutken.com/svgomg-font/)**
 
 Drop in an SVG that references web fonts. Get back the same SVG with those
 fonts embedded as base64 WOFF2 — so text renders reliably in any browser,
