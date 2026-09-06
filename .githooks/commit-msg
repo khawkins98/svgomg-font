@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# Block commit messages that carry AI-attribution trailers we don't want in
+# this project's history. Fails the commit before it lands so the message
+# can be rewritten.
+#
+# To enable: `git config core.hooksPath .githooks` (the npm `prepare`
+# script runs this automatically after `npm install`).
+
+msg_file=$1
+if [ -z "$msg_file" ] || [ ! -f "$msg_file" ]; then
+  exit 0
+fi
+
+bad_patterns=(
+  '^Co-Authored-By:[[:space:]]*Claude'
+  '^Claude-Session:[[:space:]]'
+  'claude\.ai/code/session_'
+  'noreply@anthropic\.com'
+)
+
+for pat in "${bad_patterns[@]}"; do
+  if grep -Ei -- "$pat" "$msg_file" >/dev/null; then
+    echo "commit-msg hook: blocked AI-attribution trailer matching: $pat" >&2
+    echo "commit-msg hook: remove the offending line(s) and try again." >&2
+    exit 1
+  fi
+done
+
+exit 0

@@ -1,0 +1,15 @@
+{
+  "blockedBy": [
+    "T-006"
+  ],
+  "completedDate": "2026-09-06",
+  "createdDate": "2026-09-06",
+  "description": "Committed in c13f551 as .github/workflows/ci.yml. Triggers: pull_request against main, push to any non-main branch, workflow_dispatch. Steps: checkout, node 20 with npm cache, npm ci, npm test, npm run build. Complements deploy.yml which owns push-to-main. Lint step deferred — no linter configured yet; easy follow-up.",
+  "displayId": "T-007",
+  "id": "T-007",
+  "order": 50,
+  "phase": "ship-hardening",
+  "status": "complete",
+  "title": "CI: build + lint on PR",
+  "type": "chore"
+}

@@ -610,8 +610,14 @@ async function process() {
           const r = results[i];
           if (r) {
             fonts.push(r);
-            lines.push(`  ✓ ${families[i]} (${r.bytes.toLocaleString()} bytes raw)`);
-            clog('ok', `✓ Fontsource: ${families[i]} (${(r.bytes / 1024).toFixed(1)} KB)`);
+            // Flag ambiguous families (bare "Roboto" rather than "Roboto-Bold"):
+            // they silently resolve to weight 400. If the source intended Bold,
+            // the output looks off and there's no clue why.
+            const weightNote = r.weightExplicit
+              ? ''
+              : ` · weight 400 assumed (add "-Bold" if you meant Bold)`;
+            lines.push(`  ✓ ${families[i]} (${r.bytes.toLocaleString()} bytes raw)${weightNote}`);
+            clog('ok', `✓ Fontsource: ${families[i]} (${(r.bytes / 1024).toFixed(1)} KB)${r.weightExplicit ? '' : ' [weight assumed 400]'}`);
           } else {
             missingFamilies.add(families[i]);
             clog('warn', `✗ Fontsource: ${families[i]} — not on CDN (commercial/proprietary?)`);
@@ -679,6 +685,16 @@ async function process() {
           const cpNote = usedCodepoints ? ` (${usedCodepoints.size} unique codepoints)` : '';
           lines.push(`  ✂ Subset: ${fromKb} KB → ${toKb} KB${cpNote}`);
           clog('info', `✂ Subset: ${fromKb} KB → ${toKb} KB${cpNote}`);
+        }
+
+        // Show what actually lands in the SVG — base64 inflates the font by
+        // ~4/3, so the payload the user ships is bigger than the raw font
+        // bytes shown per-face above.
+        if (subsettedFonts.length > 0) {
+          const finalKb = Math.round(totalSubsetBytes / 1024);
+          const b64Kb   = Math.round(subsettedFonts.reduce((a, f) => a + f.base64.length, 0) / 1024);
+          lines.push(`  📦 Embedded: ${finalKb} KB font · ~${b64Kb} KB base64 payload in SVG`);
+          clog('info', `📦 Embedded: ${finalKb} KB font · ~${b64Kb} KB base64 payload`);
         }
 
         out = embedFontFaces(out, subsettedFonts);

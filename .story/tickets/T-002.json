@@ -1,0 +1,12 @@
+{
+  "blockedBy": [],
+  "completedDate": null,
+  "createdDate": "2026-09-06",
+  "description": "Verify every control (dropzone, sample cards, font rows, subset toggle, copy, process, SVGO toggle, dialog open/close) is reachable by keyboard and announced sensibly by VoiceOver/NVDA. Follow-up to commit 28b210e which added skip link, aria-labels, fieldset grouping, and dialog state.",
+  "id": "T-002",
+  "order": 20,
+  "phase": "a11y-and-preview",
+  "status": "open",
+  "title": "Screen-reader audit pass on all controls",
+  "type": "task"
+}

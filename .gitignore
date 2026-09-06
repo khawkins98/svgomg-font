@@ -4,3 +4,6 @@ dist
 *.log
 .env
 .vite
+.story/snapshots/
+.story/sessions/
+.story/status.json

@@ -1,0 +1,14 @@
+{
+  "blockedBy": [],
+  "completedDate": "2026-09-06",
+  "createdDate": "2026-09-06",
+  "description": "Merge fix/before-preview-font-isolation to main. Commit 640b5bc/64b55bf isolates the before pane from the document @font-face so the raw SVG renders with whatever the browser has (or nothing), not the fonts we just fetched. Shipped as PR #6.",
+  "displayId": "T-001",
+  "id": "T-001",
+  "order": 10,
+  "parentTicket": null,
+  "phase": "a11y-and-preview",
+  "status": "complete",
+  "title": "Land preview isolation fix on main",
+  "type": "task"
+}

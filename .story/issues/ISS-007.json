@@ -1,0 +1,21 @@
+{
+  "components": [
+    "design",
+    "web"
+  ],
+  "createdBy": "design-review",
+  "discoveredDate": "2026-09-06",
+  "displayId": "ISS-007",
+  "id": "ISS-007",
+  "impact": "`.wave-path-1/-2/-3` all use `animation: … infinite` on the landing page — three overlapping CSS keyframes running forever. This matches the design.md anti-pattern \"looping ambient motion that distracts\" and \"decorative animation without meaning.\" Reduced-motion is honored (good), but the default state should not carry three ambient loops. Options: (a) one-shot entrance animation only, (b) a single slow wave, (c) trigger on scroll into view via IntersectionObserver. Any of these preserves the wave signature without three simultaneous loops competing for attention above the feature cards.",
+  "location": [
+    "src/style.css:1231-1246"
+  ],
+  "phase": null,
+  "relatedTickets": [],
+  "resolution": "Committed in 321e478. Dropped `infinite` on all three .wave-path-N animations. Keyframes oscillate around the base position (0%/100% identical, 50% offset), so a single iteration lands back where it started — one gentle entrance bob per wave, then quiet. Original delays kept so the three waves stagger in. prefers-reduced-motion suppression unchanged.",
+  "resolvedDate": "2026-09-06",
+  "severity": "medium",
+  "status": "resolved",
+  "title": "Three infinite wave animations run simultaneously on landing"
+}

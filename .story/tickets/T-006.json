@@ -1,0 +1,13 @@
+{
+  "blockedBy": [],
+  "completedDate": "2026-09-06",
+  "createdDate": "2026-09-06",
+  "description": "Committed in 9952629. Vitest set up as devDep; test scripts `npm test` (run) and `npm test:watch` added. 27 tests across parseSvg.test.js (16) and fetchFont.test.js (11). Every LEARNINGS.md gotcha now has a regression guard: `{}` boundary in font-family regex, PSMT/MT/PS suffix stripping before weight-keyword lookup, WOFF2 magic-byte validation. Foundation for T-007 (CI). subsetFont.test.js deferred — fontkit interaction is harder to test in isolation and better covered by future integration tests.",
+  "displayId": "T-006",
+  "id": "T-006",
+  "order": 40,
+  "phase": "ship-hardening",
+  "status": "complete",
+  "title": "Unit tests for parseSvg, fetchFont, subsetFont",
+  "type": "task"
+}

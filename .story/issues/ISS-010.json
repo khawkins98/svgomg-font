@@ -1,0 +1,21 @@
+{
+  "components": [
+    "design",
+    "web"
+  ],
+  "createdBy": "design-review-live",
+  "discoveredDate": "2026-09-06",
+  "displayId": "ISS-010",
+  "id": "ISS-010",
+  "impact": ".before-pane .pane-label uses `left: calc(1.25rem + 40px + 0.6rem)` to sit to the right of the close button. That assumes a 40px close button, but the actual button (\"← New file\" chevron + label) is wider (~90px), so the \"BEFORE\" pill gets clipped — only \"RE\" is visible. Verified live at localhost:5180 with the Roboto sample. Fix: reserve the label width dynamically (flex layout on the pane top-bar, or `left: 8rem`-ish), or shorten the button to icon-only.",
+  "location": [
+    "src/style.css:365"
+  ],
+  "phase": null,
+  "relatedTickets": [],
+  "resolution": "Committed in 8a2f505. Bumped .before-pane .pane-label offset from `calc(1.25rem + 40px + 0.6rem)` to `calc(1.25rem + 100px + 0.6rem)`. The 40px assumed a \"×\" close button; the actual \"← New file\" button measures ~92px. Verified live at localhost:5180 — the \"BEFORE\" pill now sits cleanly to the right of the button.",
+  "resolvedDate": "2026-09-06",
+  "severity": "low",
+  "status": "resolved",
+  "title": "\"BEFORE\" pane label clipped behind wider \"New file\" button"
+}

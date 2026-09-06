@@ -1,0 +1,21 @@
+{
+  "components": [
+    "design",
+    "web"
+  ],
+  "createdBy": "design-review",
+  "discoveredDate": "2026-09-06",
+  "displayId": "ISS-006",
+  "id": "ISS-006",
+  "impact": "`:root` forces `color-scheme: light` and no `prefers-color-scheme: dark` block exists. The hero and loaded canvas are already dark; only the feature cards and About dialog use the light palette. A developer utility opened alongside a dark editor should honor system preference — flip --bg/--fg/--card/--border under `@media (prefers-color-scheme: dark)`, and drop the hard-coded `color-scheme: light` so form controls follow the OS. Design.md: \"Dark and light themes are both valid. Choose intentionally based on product context, not habit.\" — this looks like habit.",
+  "location": [
+    "src/style.css:1-11"
+  ],
+  "phase": null,
+  "relatedTickets": [],
+  "resolution": "Committed in 1e238c2. Only the light surfaces flip: page body between hero and features, feature cards, About dialog. Hero/HUD/split-view/samples strip are already dark and untouched. Approach: color-scheme changed to `light dark`, tokens re-declared under prefers-color-scheme: dark (--bg #1a0f2e keeps hero cohesion, --card #251844 elevated above it, --muted lifted to #a89ec2, --border to #3d2a5c). Wave-path-2/-3 fills flipped to var(--bg) so the dark→light transition tracks the theme. Feat-title/code/link lifted to #a78bfa in dark mode because var(--accent) hit ~4.1:1 on the darker card (below 4.5:1 body floor). Decorative fv-half/fv-browser/fv-compare palettes kept as-is — treated as illustration content inside the card, not chrome.",
+  "resolvedDate": "2026-09-06",
+  "severity": "medium",
+  "status": "resolved",
+  "title": "No dark theme support in a developer tool"
+}

@@ -1,0 +1,12 @@
+{
+  "blockedBy": [],
+  "completedDate": null,
+  "createdDate": "2026-09-06",
+  "description": "Fontsource covers Google Fonts only. Add a resolver chain: Fontsource -> Bunny Fonts / other free CDNs -> local font (queryLocalFonts) -> user drop-in. Extend src/lib/fetchFont.js with a strategy interface so new sources can be added without touching UI.",
+  "id": "T-003",
+  "order": 10,
+  "phase": "ship-hardening",
+  "status": "open",
+  "title": "Font resolver: fallback catalog for non-Google fonts",
+  "type": "feature"
+}

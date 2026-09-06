@@ -6,8 +6,40 @@
   --accent-2: #c2410c;
   --border: #e4e0f5;
   --card: #fff;
+  /* Muted text on dark HUD/hero (background ~#0c0620 after 0.84 alpha over #1a0f2e).
+     Calibrated for WCAG 4.5:1 body-text contrast at --dark-text-muted and above;
+     --dark-text-dim/faint sit around 3:1 and are reserved for large text or
+     supplementary meta only. */
+  --dark-text-muted: rgba(255,255,255,.82);
+  --dark-text-dim: rgba(255,255,255,.7);
+  --dark-text-faint: rgba(255,255,255,.6);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  color-scheme: light;
+  color-scheme: light dark;
+}
+
+/* Dark theme: only the light surfaces (feature cards, About dialog, page body
+   between hero and features) flip. The hero, HUD, split-view canvas, and
+   samples strip are already dark and stay put. Decorative feature-card art
+   (fv-half, fv-browser, fv-compare) keeps its bright illustration palette
+   inside the elevated card surface — treated as content, not chrome. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1a0f2e;
+    --fg: #f5f3ff;
+    --muted: #a89ec2;
+    --border: #3d2a5c;
+    --card: #251844;
+  }
+  /* Waves that transition into the features background need to follow it. */
+  .wave-path-2,
+  .wave-path-3 { fill: var(--bg); }
+  /* Feat-title stays accent purple, but on the darker card it needs a lighter
+     shade to keep 4.5:1 body contrast (var(--accent) #7c3aed against #251844
+     is ~4.1:1). Use the lighter accent already established in the hero. */
+  .feat-title { color: #a78bfa; }
+  .feat-desc code { color: #a78bfa; background: rgba(167,139,250,.15); }
+  .feat-desc a { color: #a78bfa; }
+  /* About dialog: it's already token-based, but its ::backdrop stays as-is. */
 }
 
 * { box-sizing: border-box; }
@@ -262,7 +294,7 @@ body:not(.has-file) .file-button--ghost:hover { background: rgba(255,255,255,.12
 }
 .sample-hint {
   font-size: .75rem;
-  color: rgba(255,255,255,.45);
+  color: var(--dark-text-dim);
 }
 
 /* ── split-view canvas (loaded state) ── */
@@ -361,8 +393,10 @@ body.has-file .split-view:active { cursor: grabbing; }
   border: 1px solid rgba(255,255,255,.12);
   pointer-events: none;
 }
-/* Shift "Before" label right of the × close button (40px wide at left:1.25rem) */
-.before-pane .pane-label { left: calc(1.25rem + 40px + 0.6rem); }
+/* Shift "Before" label past the "← New file" close button. The button is
+   sized to its content (chevron + "New file"), which measures ~92px at the
+   default type scale — 100px keeps the label clear with breathing room. */
+.before-pane .pane-label { left: calc(1.25rem + 100px + 0.6rem); }
 
 .pane-meta {
   position: absolute;
@@ -434,7 +468,10 @@ body.has-file .split-view:active { cursor: grabbing; }
   transform: scale(1.12);
   box-shadow: 0 4px 22px rgba(0,0,0,.65);
 }
-.split-handle:focus-visible { outline: none; }
+.split-handle:focus-visible .split-handle-grip {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 3px;
+}
 
 /* ── close button ── */
 #close-btn {
@@ -542,11 +579,14 @@ body.has-file #close-btn { display: flex; }
   border-radius: 4px;
   color: rgba(255,255,255,.72);
   font-size: .78rem;
-  padding: .18rem .5rem;
+  padding: .22rem .45rem;
   cursor: pointer;
   font-family: inherit;
   white-space: nowrap;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: background .15s, color .15s;
 }
 .hud-replace:hover { background: rgba(255,255,255,.2); color: #fff; }
@@ -554,7 +594,7 @@ body.has-file #close-btn { display: flex; }
 .hud-report {
   font-size: .76rem;
   font-family: ui-monospace, monospace;
-  color: rgba(255,255,255,.55);
+  color: var(--dark-text-muted);
   white-space: pre-wrap;
   max-height: 80px;
   overflow-y: auto;
@@ -604,7 +644,7 @@ body.has-file #close-btn { display: flex; }
 }
 .upload-face-label {
   flex: 1;
-  color: rgba(255,255,255,.55);
+  color: var(--dark-text-muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -657,7 +697,7 @@ body.has-file #close-btn { display: flex; }
 .upload-face-replace:hover { background: rgba(251,191,36,.12); color: #fbbf24; }
 .upload-license-note {
   font-size: .68rem;
-  color: rgba(255,255,255,.3);
+  color: var(--dark-text-faint);
   font-family: ui-monospace, monospace;
   line-height: 1.4;
   padding-top: .15rem;
@@ -746,7 +786,7 @@ body.has-file #close-btn { display: flex; }
 .detect-local-browser-hint {
   font-size: .72rem;
   line-height: 1.5;
-  color: rgba(255,255,255,.45);
+  color: var(--dark-text-dim);
   margin: 0 0 .5rem;
 }
 .detect-local-browser-hint a {
@@ -771,7 +811,7 @@ body.has-file #close-btn { display: flex; }
 .detect-local-btn:disabled { opacity: .5; cursor: wait; }
 .detect-local-note {
   font-size: .68rem;
-  color: rgba(255,255,255,.35);
+  color: var(--dark-text-faint);
   font-family: ui-monospace, monospace;
   line-height: 1.4;
   transition: color .15s;
@@ -788,6 +828,10 @@ body.has-file #close-btn { display: flex; }
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
   transition: background .15s;
 }
 .hud-download:hover { background: #6d28d9; }
@@ -804,6 +848,10 @@ body.has-file #close-btn { display: flex; }
   font-weight: 500;
   cursor: pointer;
   font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
   transition: background .15s, border-color .15s;
 }
 #copy-btn.hud-copy:hover {
@@ -931,12 +979,14 @@ input[type="checkbox"]:focus-visible {
   right: 1rem;
   background: none;
   border: none;
-  font-size: 1.1rem;
   color: var(--muted);
   cursor: pointer;
   line-height: 1;
-  padding: .2rem .4rem;
+  padding: .3rem;
   border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 .dialog-close:hover { color: var(--fg); background: var(--border); }
 
@@ -1241,9 +1291,13 @@ footer a { color: var(--accent); }
   0%, 100% { d: path("M0,40 C360,80 720,0 1080,50 C1260,75 1380,25 1440,40 L1440,80 L0,80 Z"); }
   50%       { d: path("M0,45 C360,75 720,5 1080,45 C1260,70 1380,30 1440,45 L1440,80 L0,80 Z"); }
 }
-.wave-path-1 { animation: wave-path-1 7s ease-in-out infinite; }
-.wave-path-2 { animation: wave-path-2 9s ease-in-out infinite 2s; }
-.wave-path-3 { animation: wave-path-3 8s ease-in-out infinite 0.5s; }
+/* One-shot entrance bob per wave — signature reveal without the ambient
+   loop that would compete with content (design anti-pattern: three
+   simultaneous infinite loops). The keyframes oscillate around the base
+   position, so one iteration lands back where it started. */
+.wave-path-1 { animation: wave-path-1 7s ease-in-out; }
+.wave-path-2 { animation: wave-path-2 9s ease-in-out 2s; }
+.wave-path-3 { animation: wave-path-3 8s ease-in-out 0.5s; }
 
 /* ── prefers-reduced-motion ── */
 @media (prefers-reduced-motion: reduce) {

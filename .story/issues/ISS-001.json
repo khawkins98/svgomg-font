@@ -1,0 +1,17 @@
+{
+  "components": [
+    "src/lib/fetchFont.js"
+  ],
+  "discoveredDate": "2026-09-06",
+  "displayId": "ISS-001",
+  "id": "ISS-001",
+  "impact": "A `font-family: Roboto` with no weight suffix resolves to Regular even when the SVG's editor intended Bold. Silent — user sees a rendered result that looks off but doesn't know why. Surface a warning row in the missing-fonts list.",
+  "location": [],
+  "phase": null,
+  "relatedTickets": [],
+  "resolution": "Committed in 5a7e7b1. Added `weightExplicit` to the parseFamily return object; fetchFontAsBase64 threads it through; main.js appends \"weight 400 assumed (add \\\"-Bold\\\" if you meant Bold)\" to the auto-resolved report line only when the family name carried no recognisable weight suffix. So \"Roboto-Bold\", \"OpenSans SemiBold\", \"Times-BoldMT\" all stay quiet — the warning fires only for bare \"Roboto\" and equivalents. Tests updated to assert the new field across 5 shapes. All 27 tests still green.",
+  "resolvedDate": "2026-09-06",
+  "severity": "low",
+  "status": "resolved",
+  "title": "Ambiguous font-family names silently default to weight 400"
+}
