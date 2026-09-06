@@ -4,6 +4,8 @@
 
 # SVGOMG-Font
 
+[![CI](https://github.com/khawkins98/svgomg-font/actions/workflows/ci.yml/badge.svg)](https://github.com/khawkins98/svgomg-font/actions/workflows/ci.yml)
+
 **[Try it live →](https://www.allaboutken.com/svgomg-font/)**
 
 Drop in an SVG that references web fonts. Get back the same SVG with those

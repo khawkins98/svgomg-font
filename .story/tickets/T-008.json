@@ -1,0 +1,13 @@
+{
+  "blockedBy": [],
+  "completedDate": "2026-09-06",
+  "createdDate": "2026-09-06",
+  "description": "Already shipped in .github/workflows/deploy.yml. On push to main: npm ci → npm run build → upload-pages-artifact → deploy-pages. Marked complete during T-007 backlog reconciliation.",
+  "displayId": "T-008",
+  "id": "T-008",
+  "order": 60,
+  "phase": "ship-hardening",
+  "status": "complete",
+  "title": "GitHub Pages deploy workflow",
+  "type": "chore"
+}

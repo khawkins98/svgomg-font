@@ -1,0 +1,17 @@
+{
+  "components": [],
+  "discoveredDate": "2026-09-06",
+  "displayId": "ISS-003",
+  "id": "ISS-003",
+  "impact": "Sitting untracked on fix/before-preview-font-isolation. Either it's useful (commit + document its purpose) or leftover scratch (delete). Left untouched, it will get stashed and forgotten across branch switches.",
+  "location": [
+    "scripts/generate-demo-comparison.mjs"
+  ],
+  "phase": null,
+  "relatedTickets": [],
+  "resolution": "Committed as part of 80cf4fe (which bundled more than the commit message suggests — see also ISS-004). Script now lives at scripts/generate-demo-comparison.mjs on main; assumed useful. If it turns out to be scratch, delete in a follow-up.",
+  "resolvedDate": "2026-09-06",
+  "severity": "low",
+  "status": "resolved",
+  "title": "Untracked scripts/generate-demo-comparison.mjs — commit or delete"
+}

@@ -54,8 +54,11 @@ const fontCache = new Map();
 // Used by buildUploadUI to show the size reduction in the label.
 const subsetInfoMap = new Map();
 
-// SVG preview zoom/pan state
-let svgZoom = 0.75, svgPanX = 0, svgPanY = 0;
+// SVG preview zoom/pan state. Default 0.6 leaves ~40% margin around the
+// content so it reads as a floating document rather than filling the
+// viewport edge-to-edge (where HUDs would overlap it). User can zoom in
+// with Cmd+= / scroll for full-fit inspection.
+let svgZoom = 0.6, svgPanX = 0, svgPanY = 0;
 
 function applySvgTransform() {
   document.querySelectorAll('.zoom-wrap').forEach(wrap => {
@@ -114,7 +117,7 @@ function applySvgTransform() {
   });
 }
 
-function resetSvgView() { svgZoom = 0.75; svgPanX = 0; svgPanY = 0; }
+function resetSvgView() { svgZoom = 0.6; svgPanX = 0; svgPanY = 0; }
 function stepZoom(f) { svgZoom = Math.max(0.05, Math.min(20, svgZoom * f)); applySvgTransform(); }
 
 function loadPastedSvg(text) {
@@ -277,6 +280,9 @@ function closeFile() {
 function init() {
   for (const s of SAMPLES) {
     const btn = document.createElement('button');
+    // Explicit aria-label; otherwise the two spans concatenate without a
+    // separator ("Roboto carddeprecated SVG fonts") to screen readers.
+    btn.setAttribute('aria-label', `Load sample: ${s.name} — ${s.hint}`);
     const nameEl = document.createElement('span');
     nameEl.className = 'sample-name';
     nameEl.textContent = s.name;
@@ -292,18 +298,19 @@ function init() {
     els.aboutDialog.showModal();
     els.aboutBtn.setAttribute('aria-expanded', 'true');
   });
-  els.aboutClose.addEventListener('click', () => {
-    els.aboutDialog.close();
-    els.aboutBtn.setAttribute('aria-expanded', 'false');
-  });
+  els.aboutClose.addEventListener('click', () => els.aboutDialog.close());
   els.aboutDialog.addEventListener('click', (e) => {
-    if (e.target === els.aboutDialog) {
-      els.aboutDialog.close();
-      els.aboutBtn.setAttribute('aria-expanded', 'false');
-    }
+    if (e.target === els.aboutDialog) els.aboutDialog.close();
   });
+  // Single close-event handler covers EVERY close path (button click,
+  // backdrop click, Escape, any programmatic close). Native <dialog>
+  // only auto-restores focus when the invoker was keyboard-focused
+  // before showModal — mouse-invoked dialogs otherwise strand focus on
+  // document.body. Defer .focus() past the top-layer teardown with a
+  // task boundary (setTimeout 0) so it wins over event-order clears.
   els.aboutDialog.addEventListener('close', () => {
     els.aboutBtn.setAttribute('aria-expanded', 'false');
+    setTimeout(() => els.aboutBtn.focus(), 0);
   });
 
   const openFilePicker = () => { els.file.value = ''; els.file.click(); };
@@ -610,8 +617,17 @@ async function process() {
           const r = results[i];
           if (r) {
             fonts.push(r);
-            lines.push(`  ✓ ${families[i]} (${r.bytes.toLocaleString()} bytes raw)`);
-            clog('ok', `✓ Fontsource: ${families[i]} (${(r.bytes / 1024).toFixed(1)} KB)`);
+            // Flag AMBIGUOUS bare names ("Roboto"): they silently resolve
+            // to weight 400 when the source may have intended Bold. Skip
+            // multi-token names like "Roboto-Condensed" or "Roboto-Italic"
+            // — those reflect an explicit variant choice, not a missing
+            // weight suffix, so the warning would be misleading.
+            const isBareName = families[i].split(/[-_ ]+/).length === 1;
+            const weightNote = (r.weightExplicit || !isBareName)
+              ? ''
+              : ` · weight 400 assumed (add "-Bold" if you meant Bold)`;
+            lines.push(`  ✓ ${families[i]} (${r.bytes.toLocaleString()} bytes raw)${weightNote}`);
+            clog('ok', `✓ Fontsource: ${families[i]} (${(r.bytes / 1024).toFixed(1)} KB)${weightNote ? ' [weight assumed 400]' : ''}`);
           } else {
             missingFamilies.add(families[i]);
             clog('warn', `✗ Fontsource: ${families[i]} — not on CDN (commercial/proprietary?)`);
@@ -679,6 +695,16 @@ async function process() {
           const cpNote = usedCodepoints ? ` (${usedCodepoints.size} unique codepoints)` : '';
           lines.push(`  ✂ Subset: ${fromKb} KB → ${toKb} KB${cpNote}`);
           clog('info', `✂ Subset: ${fromKb} KB → ${toKb} KB${cpNote}`);
+        }
+
+        // Show what actually lands in the SVG — base64 inflates the font by
+        // ~4/3, so the payload the user ships is bigger than the raw font
+        // bytes shown per-face above.
+        if (subsettedFonts.length > 0) {
+          const finalKb = Math.round(totalSubsetBytes / 1024);
+          const b64Kb   = Math.round(subsettedFonts.reduce((a, f) => a + f.base64.length, 0) / 1024);
+          lines.push(`  📦 Embedded: ${finalKb} KB font · ~${b64Kb} KB base64 payload in SVG`);
+          clog('info', `📦 Embedded: ${finalKb} KB font · ~${b64Kb} KB base64 payload`);
         }
 
         out = embedFontFaces(out, subsettedFonts);
@@ -1185,6 +1211,10 @@ function renderInto(node, text, { isolate = false } = {}) {
     const url = URL.createObjectURL(blob);
     const img = document.createElement('img');
     img.src = url;
+    // Decorative: the user loaded this SVG themselves and already knows
+    // what it is. Alt text describing arbitrary user content would just
+    // read the blob URL to screen-reader users.
+    img.alt = '';
     img.onload = () => URL.revokeObjectURL(url);
     wrap.appendChild(img);
   }

@@ -1,0 +1,24 @@
+{
+  "components": [
+    "design",
+    "web"
+  ],
+  "createdBy": "design-review",
+  "discoveredDate": "2026-09-06",
+  "displayId": "ISS-008",
+  "id": "ISS-008",
+  "impact": "The UI uses well-drawn inline lucide-style SVG icons for the dropzone, file row, close chevron, and split grip — then falls back to bare unicode glyphs for HUD buttons: `↺` (replace), `⎘` (copy), `↓` (download), `✕` (dialog close), `?` (about). These render inconsistently across OSes and font stacks (`⎘` especially — often missing or rendered from a different family). Swap them for matching inline SVG icons for a single, consistent icon system.",
+  "location": [
+    "index.html:28",
+    "index.html:127",
+    "index.html:131-132",
+    "index.html:278"
+  ],
+  "phase": null,
+  "relatedTickets": [],
+  "resolution": "Committed in 37acb65. Swapped four unicode glyphs for matching lucide-style stroke=1.75 SVGs (currentColor, aria-hidden): .hud-replace → refresh-cw 12px, .hud-download → download 14px, #copy-btn.hud-copy → copy 14px, .dialog-close → x 14px. Added inline-flex + gap on those four button classes so icon and text align cleanly. .about-btn's `?` left alone — real ASCII rendering everywhere and the button is a 22px circle where a nested circular SVG would read cramped.",
+  "resolvedDate": "2026-09-06",
+  "severity": "low",
+  "status": "resolved",
+  "title": "Inconsistent iconography: unicode glyphs mixed with inline SVG icons"
+}

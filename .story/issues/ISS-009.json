@@ -1,0 +1,21 @@
+{
+  "components": [
+    "build"
+  ],
+  "createdBy": "design-review",
+  "discoveredDate": "2026-09-06",
+  "displayId": "ISS-009",
+  "id": "ISS-009",
+  "impact": "`npm run build` fails on main branch (unrelated to any current in-flight change). Root: package.json pins `vite: ^5.4.10` but the installed vite is 8.0.10, which resolves package exports more strictly. svgo 3.3.2 no longer exports `./dist/svgo.browser.js` under production+import+browser conditions. Options: (a) pin vite to ^5 and reinstall, (b) upgrade svgo to a version whose exports match, (c) import svgo from its default entry instead of `svgo/dist/svgo.browser.js`. Blocks CI (T-007) and any deploy pipeline (T-008) until resolved.",
+  "location": [
+    "package.json",
+    "src/lib/optimize.js"
+  ],
+  "phase": null,
+  "relatedTickets": [],
+  "resolution": "Resolved by commit c4ffdb2 (PR #9): \"Bump major dependencies (svgo 3->4, vite 5->8); update svgo browser import path for v4 exports\". Verified: `npm run build` succeeds on main (HEAD 4ead80b), output includes dist/assets/svgo.browser-*.js at 544 KB.",
+  "resolvedDate": "2026-09-06",
+  "severity": "high",
+  "status": "resolved",
+  "title": "Build broken: vite 8 can't resolve svgo/dist/svgo.browser.js"
+}

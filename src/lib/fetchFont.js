@@ -31,7 +31,12 @@ const WEIGHT_KEYWORDS = {
 
 export function parseFamily(name) {
   // "Roboto-Bold" or "Roboto Bold" → base "Roboto", weight 700
+  // `weightExplicit` says whether the name carried a recognisable weight
+  // suffix. When false, `weight` is our 400 default and the caller may want
+  // to warn the user that a bare "Roboto" resolves to Regular even if the
+  // source intended Bold.
   let weight = 400;
+  let weightExplicit = false;
   let base = name;
   let italic = false;
 
@@ -50,6 +55,7 @@ export function parseFamily(name) {
     const cleanLast = rawLast.replace(/PSMT$|MT$|PS$/, '').toLowerCase();
     if (WEIGHT_KEYWORDS[cleanLast] !== undefined) {
       weight = WEIGHT_KEYWORDS[cleanLast];
+      weightExplicit = true;
       tokens.pop();
     }
   }
@@ -57,7 +63,7 @@ export function parseFamily(name) {
     base = tokens.join(' ');
   }
 
-  return { base, weight, italic };
+  return { base, weight, italic, weightExplicit };
 }
 
 /**
@@ -99,7 +105,7 @@ function toBase64(bytes) {
  * @returns {Promise<{family: string, weight: number, italic: boolean, base64: string} | null>}
  */
 export async function fetchFontAsBase64(fullName) {
-  const { base, weight, italic } = parseFamily(fullName);
+  const { base, weight, italic, weightExplicit } = parseFamily(fullName);
   const slug = fontsourceSlug(base);
   const style = italic ? 'italic' : 'normal';
 
@@ -115,6 +121,7 @@ export async function fetchFontAsBase64(fullName) {
         family: fullName, // preserve original name so existing CSS still matches
         weight,
         italic,
+        weightExplicit,
         base64: toBase64(bytes),
         bytes: bytes.length,
         sourceUrl: url,

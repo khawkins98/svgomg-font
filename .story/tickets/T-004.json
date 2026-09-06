@@ -1,0 +1,13 @@
+{
+  "blockedBy": [],
+  "completedDate": null,
+  "createdDate": "2026-09-06",
+  "description": "Currently latin subset only. Detect non-latin codepoints in the SVG text and fetch the appropriate Fontsource subset (latin-ext, cyrillic, greek, vietnamese, etc.). With glyph subsetting on (default), the source subset choice mainly affects the initial fetch size.",
+  "displayId": "T-004",
+  "id": "T-004",
+  "order": 20,
+  "phase": "ship-hardening",
+  "status": "open",
+  "title": "Non-latin subset support",
+  "type": "feature"
+}

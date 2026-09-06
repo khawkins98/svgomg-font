@@ -1,0 +1,22 @@
+{
+  "components": [
+    "design",
+    "web"
+  ],
+  "createdBy": "design-review",
+  "discoveredDate": "2026-09-06",
+  "displayId": "ISS-004",
+  "id": "ISS-004",
+  "impact": "The before/after split handle (`#split-handle`) uses `role=\"slider\"` with `aria-orientation=\"vertical\"` — but the handle moves left/right, its aria-valuenow is a horizontal percentage, and horizontal is the actual slider axis. Vertical is for handles that move up/down; screen readers will read this as up/down and users won't know which arrow keys apply. Also, `.split-handle:focus-visible { outline: none; }` removes the keyboard focus indicator entirely; the only visual is a subtle grip transform, which is a fragile substitute. Set aria-orientation to horizontal (or drop it — horizontal is the default) and restore a visible focus outline on the handle.",
+  "location": [
+    "index.html:96-109",
+    "src/style.css:437"
+  ],
+  "phase": null,
+  "relatedTickets": [],
+  "resolution": "index.html: aria-orientation changed from \"vertical\" to \"horizontal\" on #split-handle — matches ArrowLeft/ArrowRight keyboard handler in src/main.js:336-340. src/style.css: replaced `.split-handle:focus-visible { outline: none }` with a visible 2.5px accent outline on the grip with 3px offset, keeping the existing scale/shadow affordance for hover. Build validation blocked by pre-existing ISS-009 (vite/svgo mismatch); changes are HTML/CSS-only and independently verifiable.",
+  "resolvedDate": "2026-09-06",
+  "severity": "high",
+  "status": "resolved",
+  "title": "Split handle: wrong aria-orientation and outline:none breaks a11y"
+}

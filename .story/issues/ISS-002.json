@@ -1,0 +1,17 @@
+{
+  "components": [
+    "src/main.js"
+  ],
+  "discoveredDate": "2026-09-06",
+  "displayId": "ISS-002",
+  "id": "ISS-002",
+  "impact": "Base64 inflates WOFF2 by ~4/3, and subsetting can shrink it 5-10x. Users can't currently tell what a font is actually costing them in the output SVG. Show pre/post/subset sizes in the font row so the tradeoff is visible.",
+  "location": [],
+  "phase": null,
+  "relatedTickets": [],
+  "resolution": "Committed in 40c194a. Added one always-emitted summary line to the report after the existing subset totals: `Embedded: N KB font · ~M KB base64 payload in SVG`. Computed as `subsettedFonts.reduce((a,f) => a + f.base64.length, 0)` so the figure reflects exactly what embedFontFaces() will inline. Per-face raw bytes and per-face subset info remain (line 613, upload rows) — this closes the gap by showing the aggregate figure that matches the shipped SVG size.",
+  "resolvedDate": "2026-09-06",
+  "severity": "low",
+  "status": "resolved",
+  "title": "Show final embedded size next to raw font weight"
+}

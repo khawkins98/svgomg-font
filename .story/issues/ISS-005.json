@@ -1,0 +1,24 @@
+{
+  "components": [
+    "design",
+    "web"
+  ],
+  "createdBy": "design-review",
+  "discoveredDate": "2026-09-06",
+  "displayId": "ISS-005",
+  "id": "ISS-005",
+  "impact": "Body/status text at ≤55% white on the dark HUD backgrounds falls below 4.5:1. Specifically: `.hud-report` at rgba(255,255,255,.55) on rgba(10,4,26,.84) — this carries status/warnings/errors, so legibility is critical. Same class of problem: `.upload-face-label` (.55), `.sample-hint` (.45), `.detect-local-note` (.35), `.upload-license-note` (.3), `.detect-local-browser-hint` (.45). Lift muted-text opacity to at least .72 on dark, or introduce a semantic --hud-text-muted token calibrated for 4.5:1 against --canvas-bg. Errors/warnings (.hud-report .warn/.err) are already colored, so they're fine.",
+  "location": [
+    "src/style.css:554-566",
+    "src/style.css:262-266",
+    "src/style.css:604-611",
+    "src/style.css:772-778"
+  ],
+  "phase": null,
+  "relatedTickets": [],
+  "resolution": "Committed in 3da65f6. Introduced three semantic dark-mode text tokens on :root (--dark-text-muted .82, --dark-text-dim .70, --dark-text-faint .60) calibrated against the ~#0c0620 effective HUD background (0.84 alpha over #1a0f2e), and swapped in the appropriate token for the six flagged classes: .hud-report + .upload-face-label (muted), .sample-hint + .detect-local-browser-hint (dim), .upload-license-note + .detect-local-note (faint). --dark-text-muted hits WCAG 4.5:1 body-text; dim/faint sit around 3:1 for supplementary meta only.",
+  "resolvedDate": "2026-09-06",
+  "severity": "high",
+  "status": "resolved",
+  "title": "Multiple HUD text elements below WCAG 4.5:1 contrast"
+}

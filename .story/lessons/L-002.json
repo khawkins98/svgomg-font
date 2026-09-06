@@ -1,0 +1,18 @@
+{
+  "content": "When authoring a commit message that documents what a commit-msg hook rejects, don't reproduce the offending pattern verbatim in the body — the hook will match it and block the commit that ships the hook. Reference the file (e.g. \"see .githooks/commit-msg for the full list\") or paraphrase the pattern so it doesn't literally match.",
+  "context": "While flattening this session's work into one PR commit, the flatten commit itself was blocked by the newly-installed commit-msg hook because the commit body listed the trailer patterns the hook rejects (including `claude.ai/code/session_`). That literal string matched the hook's own regex. Nice proof-of-work that the hook is doing its job, but a genuine friction the second time around. Fix was to rewrite the message to reference the hook file rather than reproducing the pattern. Landed as commit b5f65d2 on branch chore/paper-cuts (PR #12).",
+  "createdDate": "2026-09-06",
+  "id": "L-002",
+  "lastValidated": "2026-09-06",
+  "reinforcements": 0,
+  "source": "postmortem",
+  "status": "active",
+  "supersedes": null,
+  "tags": [
+    "process",
+    "git",
+    "hooks"
+  ],
+  "title": "A commit-msg pattern hook fires on messages that describe the pattern",
+  "updatedDate": "2026-09-06"
+}

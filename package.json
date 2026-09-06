@@ -1,6 +1,6 @@
 {
   "name": "svgomg-font",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Drop in an SVG, embed its web fonts as base64 woff2, optionally optimize with SVGO. All client-side.",
   "type": "module",
@@ -8,10 +8,19 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "start": "node scripts/launch.mjs"
+    "start": "node scripts/launch.mjs",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "prepare": "git config core.hooksPath .githooks 2>/dev/null || true"
   },
   "devDependencies": {
-    "vite": "^8.0.0"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.10.0",
+    "globals": "^17.12.0",
+    "happy-dom": "^20.14.0",
+    "vite": "^8.0.0",
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "fontkit": "^2.0.4",

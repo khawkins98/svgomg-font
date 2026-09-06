@@ -1,0 +1,43 @@
+{
+  "blockers": [],
+  "date": "2026-09-06",
+  "phases": [
+    {
+      "description": "Strip deprecated SVG <font> blocks, fetch Fontsource WOFF2s via jsDelivr, embed as data URIs in @font-face, safe SVGO pass. Shipped.",
+      "id": "core-pipeline",
+      "label": "PHASE 0",
+      "name": "Core pipeline"
+    },
+    {
+      "description": "Local Font Access API integration, PostScript-name matching, weight parsing from suffixes, fontkit-based subsetting (replaces wawoff2+harfbuzz). Shipped.",
+      "id": "font-resolution",
+      "label": "PHASE 1",
+      "name": "Font resolution"
+    },
+    {
+      "description": "Rounded-card dropzone, drag-font-on-row, copy button, -embedded filename, sample cards, SVG zoom/pan, interactive HUD panels. Shipped.",
+      "id": "ux-polish",
+      "label": "PHASE 2",
+      "name": "UX polish"
+    },
+    {
+      "description": "Skip link, aria labels, fieldset grouping, dialog state, subset-glyphs toggle, before-pane @font-face isolation, meta descriptions. Active.",
+      "id": "a11y-and-preview",
+      "label": "PHASE 3",
+      "name": "A11y and preview fidelity"
+    },
+    {
+      "description": "Broader font coverage, non-latin subsets, custom font drop-in, unit tests for pipeline modules, CI on PR, Pages deploy workflow.",
+      "id": "ship-hardening",
+      "label": "PHASE 4",
+      "name": "Ship hardening"
+    },
+    {
+      "description": "Initial project setup.",
+      "id": "p0",
+      "label": "PHASE 0",
+      "name": "Setup"
+    }
+  ],
+  "title": "svgomg-font"
+}

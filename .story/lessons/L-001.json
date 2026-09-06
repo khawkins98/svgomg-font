@@ -1,0 +1,18 @@
+{
+  "content": "When resolving a ticket or issue, mark its status (`complete` / `resolved`) in the same commit as the code that satisfies it. If a code change lands separately from the ledger update, the ledger drifts: `storybloq_recommend` surfaces already-done work, wastes triage cycles, and can trigger fixes for problems that no longer exist. Before starting new work from the recommend list, verify each candidate against `git log --oneline` for merged PRs it might already reflect.",
+  "context": "Session on 2026-09-06 opened with T-001 (preview isolation) marked inprogress though its fix had shipped in PR #6 (64b55bf), and ISS-009 (build broken) filed against a state that PR #9 (c4ffdb2) had already resolved before the finding was verified. Reconciliation took ~10 min of git-log correlation to sort out. Also observed: my own initial commit for ISS-004 accidentally bundled the pending .story/ scaffold + an untracked script because I ran `git add <paths>` on top of a pre-staged index instead of `git commit -- <paths>`. Root causes: (a) ticket status was left inprogress after the merge instead of being flipped complete in the commit, (b) staging state at session start wasn't verified before adding paths.",
+  "createdDate": "2026-09-06",
+  "id": "L-001",
+  "lastValidated": "2026-09-06",
+  "reinforcements": 0,
+  "source": "postmortem",
+  "status": "active",
+  "supersedes": null,
+  "tags": [
+    "process",
+    "storybloq",
+    "git"
+  ],
+  "title": "Update ticket/issue status in the same commit as the code change",
+  "updatedDate": "2026-09-06"
+}

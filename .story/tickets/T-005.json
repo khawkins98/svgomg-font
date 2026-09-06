@@ -1,0 +1,12 @@
+{
+  "blockedBy": [],
+  "completedDate": null,
+  "createdDate": "2026-09-06",
+  "description": "Drag-font-on-row exists (commit b9f7e63) for a font already in the missing list. Add: bulk import of user-supplied .woff2/.ttf/.otf via a file picker for cases where the SVG references a paid or custom family not in any online catalog. Reuse existing subset pipeline.",
+  "id": "T-005",
+  "order": 30,
+  "phase": "ship-hardening",
+  "status": "open",
+  "title": "Custom font drop-in via file input",
+  "type": "feature"
+}
