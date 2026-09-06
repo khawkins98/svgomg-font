@@ -150,7 +150,9 @@
               </svg>
             </button>
           </div>
-          <div id="report" class="hud-report" role="status" aria-live="polite" aria-atomic="true"></div>
+          <!-- tabindex=0 makes the scrollable status log reachable via
+               keyboard when its content overflows the 80px max-height. -->
+          <div id="report" class="hud-report" role="status" aria-live="polite" aria-atomic="true" tabindex="0"></div>
           <div id="font-uploads" class="hud-uploads" hidden></div>
           <button id="download" class="hud-download" hidden aria-label="Download fixed SVG">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" width="14" height="14">

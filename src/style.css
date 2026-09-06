@@ -243,22 +243,27 @@ body.has-file .dropzone { display: none; }
 }
 #file-input { display: none; }
 
+/* Buttons sit on the purple accent dropzone (--accent, #7c3aed). White text
+   on a white-tinted overlay of that (rgba(255,255,255,.2)) computes to
+   ~4:1 and fails WCAG 4.5:1. A darker chip (black overlay on accent)
+   gives ~6:1 while keeping the translucent-badge feel. */
 body:not(.has-file) .file-button {
-  background: rgba(255,255,255,.2);
-  border: 1px solid rgba(255,255,255,.4);
+  background: rgba(0,0,0,.28);
+  border: 1px solid rgba(255,255,255,.45);
   color: #fff;
 }
-body:not(.has-file) .file-button:hover { background: rgba(255,255,255,.32); }
+body:not(.has-file) .file-button:hover { background: rgba(0,0,0,.42); }
 body:not(.has-file) .file-button--ghost {
   background: transparent;
-  border: 1px solid rgba(255,255,255,.3);
-  color: rgba(255,255,255,.8);
+  border: 1px solid rgba(255,255,255,.55);
+  color: #fff;
 }
-body:not(.has-file) .file-button--ghost:hover { background: rgba(255,255,255,.12); color: #fff; }
+body:not(.has-file) .file-button--ghost:hover { background: rgba(0,0,0,.2); }
 
 .dropzone-actions { display: flex; gap: .6rem; flex-wrap: wrap; justify-content: center; }
 .dropzone-hint { font-size: .78rem; color: rgba(255,255,255,.5); margin: .5rem 0 0; white-space: nowrap; }
-.dropzone-hint kbd { font-family: inherit; background: rgba(255,255,255,.12); border-radius: 3px; padding: .1em .35em; font-size: .85em; }
+/* Same fix as .file-button: darker chip on purple keeps 4.5:1. */
+.dropzone-hint kbd { font-family: inherit; background: rgba(0,0,0,.28); border-radius: 3px; padding: .1em .35em; font-size: .85em; }
 .dropzone-error { font-size: .8rem; color: #fbbf24; margin: .4rem 0 0; }
 
 .samples {

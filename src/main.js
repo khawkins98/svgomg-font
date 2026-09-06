@@ -292,16 +292,24 @@ function init() {
     els.aboutDialog.showModal();
     els.aboutBtn.setAttribute('aria-expanded', 'true');
   });
-  els.aboutClose.addEventListener('click', () => {
+  // Native <dialog> only auto-restores focus when the invoker was
+  // keyboard-focused before showModal; mouse-invoked dialogs leave
+  // focus on document.body after close. Defer the manual focus() past
+  // any pending mouseup/blur with a task boundary (setTimeout 0) so it
+  // wins over event-order clears.
+  const closeAboutDialog = () => {
     els.aboutDialog.close();
     els.aboutBtn.setAttribute('aria-expanded', 'false');
-  });
+    setTimeout(() => els.aboutBtn.focus(), 0);
+  };
+  els.aboutClose.addEventListener('click', closeAboutDialog);
   els.aboutDialog.addEventListener('click', (e) => {
-    if (e.target === els.aboutDialog) {
-      els.aboutDialog.close();
-      els.aboutBtn.setAttribute('aria-expanded', 'false');
-    }
+    if (e.target === els.aboutDialog) closeAboutDialog();
   });
+  // Escape closes the dialog natively (browser-handled), and doesn't route
+  // through closeAboutDialog. Catch it via the close event to keep
+  // aria-expanded and focus in sync. Native <dialog> auto-restores focus
+  // to the invoker, so we only need to reset the aria state here.
   els.aboutDialog.addEventListener('close', () => {
     els.aboutBtn.setAttribute('aria-expanded', 'false');
   });
@@ -1201,6 +1209,10 @@ function renderInto(node, text, { isolate = false } = {}) {
     const url = URL.createObjectURL(blob);
     const img = document.createElement('img');
     img.src = url;
+    // Decorative: the user loaded this SVG themselves and already knows
+    // what it is. Alt text describing arbitrary user content would just
+    // read the blob URL to screen-reader users.
+    img.alt = '';
     img.onload = () => URL.revokeObjectURL(url);
     wrap.appendChild(img);
   }
