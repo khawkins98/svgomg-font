@@ -14,6 +14,7 @@
     "prepare": "git config core.hooksPath .githooks 2>/dev/null || true"
   },
   "devDependencies": {
+    "happy-dom": "^20.14.0",
     "vite": "^8.0.0",
     "vitest": "^5.0.0"
   },
