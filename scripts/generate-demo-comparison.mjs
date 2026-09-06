@@ -153,28 +153,6 @@ function panel(index, content, badgeText, badgeColor, footerItems) {
   `;
 }
 
-// ── Build each panel's infographic content ────────────────────────────────────
-
-function infographicContent(px, py, renderTitle, renderLabels, renderPcts, renderCaption) {
-  const iy = py + 46;
-  const barX = px + 14;
-  const rowH = 28;
-  const barAreaW = PW - 28 - 60;
-
-  const bars = barChartGeometry(barX, iy + 38, PW - 28, rowH);
-
-  return `
-  ${renderTitle(px + PW / 2, iy + 18)}
-  ${bars}
-  ${BARS.map((b, i) => renderLabels(b.label, barX + 4, iy + 38 + i * rowH + rowH / 2 + 4)).join('')}
-  ${BARS.map((b, i) => {
-    const bw = Math.round((PW - 28 - 60) * b.pct / 100);
-    return renderPcts(`${b.pct}%`, barX + 58 + bw + 4, iy + 38 + i * rowH + rowH / 2 + 4);
-  }).join('')}
-  ${renderCaption(px + PW / 2, iy + 38 + BARS.length * rowH + 20)}
-  `;
-}
-
 // ── Panel 1: Outlines ─────────────────────────────────────────────────────────
 function panel1Content(px, py) {
   const iy = py + 46;
