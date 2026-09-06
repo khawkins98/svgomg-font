@@ -277,6 +277,9 @@ function closeFile() {
 function init() {
   for (const s of SAMPLES) {
     const btn = document.createElement('button');
+    // Explicit aria-label; otherwise the two spans concatenate without a
+    // separator ("Roboto carddeprecated SVG fonts") to screen readers.
+    btn.setAttribute('aria-label', `Load sample: ${s.name} — ${s.hint}`);
     const nameEl = document.createElement('span');
     nameEl.className = 'sample-name';
     nameEl.textContent = s.name;
