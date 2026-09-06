@@ -54,8 +54,11 @@ const fontCache = new Map();
 // Used by buildUploadUI to show the size reduction in the label.
 const subsetInfoMap = new Map();
 
-// SVG preview zoom/pan state
-let svgZoom = 0.75, svgPanX = 0, svgPanY = 0;
+// SVG preview zoom/pan state. Default 0.6 leaves ~40% margin around the
+// content so it reads as a floating document rather than filling the
+// viewport edge-to-edge (where HUDs would overlap it). User can zoom in
+// with Cmd+= / scroll for full-fit inspection.
+let svgZoom = 0.6, svgPanX = 0, svgPanY = 0;
 
 function applySvgTransform() {
   document.querySelectorAll('.zoom-wrap').forEach(wrap => {
@@ -114,7 +117,7 @@ function applySvgTransform() {
   });
 }
 
-function resetSvgView() { svgZoom = 0.75; svgPanX = 0; svgPanY = 0; }
+function resetSvgView() { svgZoom = 0.6; svgPanX = 0; svgPanY = 0; }
 function stepZoom(f) { svgZoom = Math.max(0.05, Math.min(20, svgZoom * f)); applySvgTransform(); }
 
 function loadPastedSvg(text) {
