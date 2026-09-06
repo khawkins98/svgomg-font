@@ -298,26 +298,19 @@ function init() {
     els.aboutDialog.showModal();
     els.aboutBtn.setAttribute('aria-expanded', 'true');
   });
-  // Native <dialog> only auto-restores focus when the invoker was
-  // keyboard-focused before showModal; mouse-invoked dialogs leave
-  // focus on document.body after close. Defer the manual focus() past
-  // any pending mouseup/blur with a task boundary (setTimeout 0) so it
-  // wins over event-order clears.
-  const closeAboutDialog = () => {
-    els.aboutDialog.close();
-    els.aboutBtn.setAttribute('aria-expanded', 'false');
-    setTimeout(() => els.aboutBtn.focus(), 0);
-  };
-  els.aboutClose.addEventListener('click', closeAboutDialog);
+  els.aboutClose.addEventListener('click', () => els.aboutDialog.close());
   els.aboutDialog.addEventListener('click', (e) => {
-    if (e.target === els.aboutDialog) closeAboutDialog();
+    if (e.target === els.aboutDialog) els.aboutDialog.close();
   });
-  // Escape closes the dialog natively (browser-handled), and doesn't route
-  // through closeAboutDialog. Catch it via the close event to keep
-  // aria-expanded and focus in sync. Native <dialog> auto-restores focus
-  // to the invoker, so we only need to reset the aria state here.
+  // Single close-event handler covers EVERY close path (button click,
+  // backdrop click, Escape, any programmatic close). Native <dialog>
+  // only auto-restores focus when the invoker was keyboard-focused
+  // before showModal — mouse-invoked dialogs otherwise strand focus on
+  // document.body. Defer .focus() past the top-layer teardown with a
+  // task boundary (setTimeout 0) so it wins over event-order clears.
   els.aboutDialog.addEventListener('close', () => {
     els.aboutBtn.setAttribute('aria-expanded', 'false');
+    setTimeout(() => els.aboutBtn.focus(), 0);
   });
 
   const openFilePicker = () => { els.file.value = ''; els.file.click(); };
@@ -624,14 +617,17 @@ async function process() {
           const r = results[i];
           if (r) {
             fonts.push(r);
-            // Flag ambiguous families (bare "Roboto" rather than "Roboto-Bold"):
-            // they silently resolve to weight 400. If the source intended Bold,
-            // the output looks off and there's no clue why.
-            const weightNote = r.weightExplicit
+            // Flag AMBIGUOUS bare names ("Roboto"): they silently resolve
+            // to weight 400 when the source may have intended Bold. Skip
+            // multi-token names like "Roboto-Condensed" or "Roboto-Italic"
+            // — those reflect an explicit variant choice, not a missing
+            // weight suffix, so the warning would be misleading.
+            const isBareName = families[i].split(/[-_ ]+/).length === 1;
+            const weightNote = (r.weightExplicit || !isBareName)
               ? ''
               : ` · weight 400 assumed (add "-Bold" if you meant Bold)`;
             lines.push(`  ✓ ${families[i]} (${r.bytes.toLocaleString()} bytes raw)${weightNote}`);
-            clog('ok', `✓ Fontsource: ${families[i]} (${(r.bytes / 1024).toFixed(1)} KB)${r.weightExplicit ? '' : ' [weight assumed 400]'}`);
+            clog('ok', `✓ Fontsource: ${families[i]} (${(r.bytes / 1024).toFixed(1)} KB)${weightNote ? ' [weight assumed 400]' : ''}`);
           } else {
             missingFamilies.add(families[i]);
             clog('warn', `✗ Fontsource: ${families[i]} — not on CDN (commercial/proprietary?)`);

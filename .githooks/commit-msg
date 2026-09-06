@@ -12,7 +12,11 @@ if [ -z "$msg_file" ] || [ ! -f "$msg_file" ]; then
 fi
 
 bad_patterns=(
-  '^Co-Authored-By:[[:space:]]*Claude'
+  # `Claude` as a whole word: matches "Co-Authored-By: Claude" and
+  # "Co-Authored-By: Claude Opus 4.7 <...>" but NOT human names like
+  # "Claudia", "Claudette", "Claudius". The trailing char must be end,
+  # whitespace, punctuation, or `<`, never another letter.
+  '^Co-Authored-By:[[:space:]]*Claude([^A-Za-z]|$)'
   '^Claude-Session:[[:space:]]'
   'claude\.ai/code/session_'
   'noreply@anthropic\.com'
