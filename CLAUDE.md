@@ -4,16 +4,15 @@ Guidance for AI coding agents working in this repo. Read this before touching co
 
 ## What this is
 
-**svgomg-font** — client-side browser tool for fixing broken SVG fonts. Drop in an SVG that references web fonts by name (`font-family: Roboto-Bold`); get back the same SVG with those fonts embedded as base64 WOFF2 so text renders reliably in `<img>` tags, emails, and sandboxed contexts.
-
-- Single-page Vite + vanilla JS app. No framework, no backend, no data.
-- Deployed statically to GitHub Pages via `.github/workflows/deploy.yml`.
-- Everything runs in the user's browser — no upload, no accounts.
+**svgomg-font** — a client-side SVG font embedder built with Vite and
+vanilla JS. [README.md](README.md) is the maintained user guide;
+[ABOUT.md](ABOUT.md) explains the motivation. Font lookup makes network
+requests, but the SVG and supplied fonts are processed locally.
 
 ## Where the important stuff lives
 
 - **`index.html`** — the whole UI shell. Two visual states, gated by `body.has-file`: landing (dropzone + samples + feature cards + About dialog) vs loaded (split-view canvas + HUD panels).
-- **`src/main.js`** — orchestration. Reads options, calls the pipeline, renders reports and font-face rows.
+- **`src/main.js`** — orchestration, installed-font access, and font uploads. Reads options, calls the pipeline, renders reports and font-face rows.
 - **`src/lib/parseSvg.js`** — regex-based font-family extraction. Also detects and strips deprecated `<font>` blocks.
 - **`src/lib/fetchFont.js`** — Fontsource-via-jsDelivr resolver. Parses family names (including PSMT/MT/PS PostScript suffixes) into base + weight + style, then fetches the WOFF2.
 - **`src/lib/subsetFont.js`** — fontkit-based glyph subsetting (lazy-imported so it doesn't bloat first paint).
@@ -23,33 +22,29 @@ Guidance for AI coding agents working in this repo. Read this before touching co
 
 ## Rules to follow
 
-The full list is in `RULES.md`. Highlights:
-
-- Never enable SVGO `inlineStyles` or `minifyStyles`. They break embedded font blocks.
-- Validate WOFF2 magic bytes (`77 4F 46 32`) on every fetch — a 404 HTML body base64-encodes silently otherwise.
-- Match local fonts by `.postscriptName` first, `.family` second.
-- The `font-family` regex negated set must include `{}` — minified CSS gets swallowed as one giant match without it.
-- `fontkit` is dynamic-imported (`import('fontkit')` inside `subsetFontIfPossible`), never at module top level.
-- The "before" pane preview must not inherit the document's `@font-face` rules.
+Read [RULES.md](RULES.md) before editing the pipeline. It is the maintained
+home for SVGO, font validation/matching, regex, bundle, and preview-isolation
+constraints.
 
 ## Working on this repo
 
-- `npm run dev` — Vite dev server at `http://localhost:5180/svgomg-font/`.
-- `npm test` — vitest, currently 33 tests covering the LEARNINGS.md gotchas.
-- `npm run build` — production build to `dist/`.
-- CI runs tests + build on every PR (`.github/workflows/ci.yml`); deploy runs on push to main.
-- `.githooks/commit-msg` blocks AI-attribution trailers. `npm install` wires it up via the `prepare` script.
+Use [CONTRIBUTING.md](CONTRIBUTING.md#local-setup) for Node requirements and
+setup, and [its checks section](CONTRIBUTING.md#checks-before-a-pull-request)
+for validation and the current CI runtime limitation. Keep those instructions
+there rather than copying command lists or test counts here.
 
 ## Ticket flow
 
 Roadmap, tickets, issues, and handovers live in `.story/` (storybloq). When starting new work, invoke the storybloq skill to load context — the last session's handover already knows what's in flight, what shipped, and what the current gotchas are. Update ticket/issue status **in the same commit as the code** (see lesson L-001 — deviations create ledger drift).
 
-## What this codebase deliberately doesn't do
+## Technology choices
 
 - **No TypeScript.** Vanilla JS with JSDoc for the surface where it matters.
 - **No component framework.** DOM APIs directly.
 - **No test framework beyond vitest.** No Playwright, no visual regression.
-- **No linter yet.** ESLint/prettier is a reasonable follow-up but not in place.
+- **ESLint checks bugs, not formatting.** No Prettier configuration.
 - **No i18n.** English-only UI copy.
 
-Deep design context (why every technical choice was made): `LEARNINGS.md`.
+Recorded design context and experiments: [LEARNINGS.md](LEARNINGS.md).
+For documentation placement and upkeep, see
+[Maintaining documentation](CONTRIBUTING.md#maintaining-documentation).

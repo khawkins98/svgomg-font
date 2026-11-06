@@ -3,53 +3,46 @@
 ## The 30-second pitch
 
 You designed an SVG with text in some web font — Roboto, Inter, Open Sans,
-whatever. It looks great in your editor. You ship it. On half the machines
-that open it, the text reflows or falls back to Times. Sometimes it doesn't
-even appear. That's because the font wasn't actually embedded; only its
-*name* was.
+whatever. It looks great in your editor. You ship it. On a machine without
+that font, the text reflows or falls back to another face. Sometimes it
+doesn't even appear. That's because the font wasn't actually embedded;
+only its *name* was.
 
-SVGOMG-Font fixes that. Drop in the SVG, it pulls the right woff2 files from
-Fontsource (a clean static mirror of Google Fonts) and inlines them as base64
-inside the SVG's `<style>` block. The output is a self-contained file that
-renders the same everywhere — including when used as `<img src="...">`, which
-is where most "broken text" reports come from.
+SVGOMG-Font fixes that by embedding font binaries directly in the SVG's
+`<style>` block. The font travels with the image, including in a browser's
+`<img src="...">` context. The app can fetch fonts from Fontsource via
+jsDelivr, read permitted installed fonts, or accept font files you supply.
+
+For the current workflow, options, and limits, use the
+[README](README.md#usage). Font embedding and redistribution still need to
+be permitted by the font's license.
 
 ## What it does, step by step
 
-1. **Parse.** Walks the SVG looking for every distinct `font-family`, in
-   `<style>` blocks and on individual elements.
-2. **Strip junk.** Removes deprecated SVG `<font>` glyph blocks if present.
-   These are an old format some editors (Vecta Nano, older Inkscape) still
-   emit, and no browser since IE 9 actually renders them. They're inert
-   bytes that bloat the file.
-3. **Resolve.** For each family, infers the weight from the suffix
-   (`Roboto-Bold` → 700, `Open Sans Light` → 300) and fetches the matching
-   latin-subset woff2 from Fontsource via jsDelivr.
-4. **Embed.** Adds an `@font-face` rule with a `data:font/woff2;base64,...`
-   URI for each font, prepended to the SVG's existing `<style>` block.
-5. **Optionally optimize.** Runs SVGO with safe defaults — `inlineStyles`
-   and `minifyStyles` are disabled because they'd corrupt the base64 we
-   just inlined.
+1. **Parse.** Find font-family references in SVG attributes and CSS.
+2. **Strip junk.** Optionally remove deprecated SVG `<font>` blocks.
+3. **Resolve.** Look up fonts on Fontsource, then try installed fonts where
+   browser support and permission allow. Offer uploads for unresolved faces.
+4. **Subset and embed.** Attempt glyph subsetting when enabled, then insert
+   `@font-face` data URIs while retaining the SVG's text nodes.
+5. **Optionally optimize.** Run SVGO with the font-sensitive plugins disabled.
+
+The [source map](CLAUDE.md#where-the-important-stuff-lives) points to each
+stage; [RULES.md](RULES.md) holds its implementation constraints.
 
 ## What it does *not* do
 
-- Subset glyphs. The latin woff2 files are ~20–30 KB each. A glyph subset of
-  only the characters actually used in the SVG would shrink that 5–10×, but
-  doing that in the browser needs a wasm subsetter, and we wanted a small
-  V1.
-- Resolve custom or paid fonts. Fontsource only mirrors Google Fonts'
-  catalog. If you're using something else, you'd extend
-  `src/lib/fetchFont.js` with another resolver, or hand-paste an
-  `@font-face` block.
-- Outline text to paths. Outlining loses semantics (selectable text,
-  accessibility, screen readers, copy-paste) and bloats the file. Use
-  Illustrator's "Create Outlines" if you want that — the whole point of
-  this tool is the opposite.
+It does not turn text into outlines, edit paths, or replace a design tool.
+Keeping text nodes preserves editability and machine-readable content; it
+doesn't guarantee every viewer will support SVG fonts. For resolution,
+character coverage, and output-format limits, see
+[README limitations](README.md#limitations).
 
 ## Why this gap exists
 
-There are good tools at every step of the pipeline, but none that do all
-three together in a browser:
+The following comparison is retained from the project's original research,
+not a current survey of these tools. See [LEARNINGS.md](LEARNINGS.md) for
+the recorded investigation:
 
 - **SVGO / SVGOMG** — optimization, no font handling
 - **Vecta Nano** — claims font embedding, ships the deprecated `<font>`
