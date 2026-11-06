@@ -35,9 +35,10 @@ The full list is in `RULES.md`. Highlights:
 ## Working on this repo
 
 - `npm run dev` — Vite dev server at `http://localhost:5180/svgomg-font/`.
-- `npm test` — vitest, currently 33 tests covering the LEARNINGS.md gotchas.
+- `npm test` — Vitest coverage for the LEARNINGS.md gotchas.
+- `npm run lint` — ESLint checks.
 - `npm run build` — production build to `dist/`.
-- CI runs tests + build on every PR (`.github/workflows/ci.yml`); deploy runs on push to main.
+- CI runs lint, tests and build on every PR (`.github/workflows/ci.yml`); deploy runs on push to main. Use Node.js 24 for local development as described in CONTRIBUTING.md.
 - `.githooks/commit-msg` blocks AI-attribution trailers. `npm install` wires it up via the `prepare` script.
 
 ## Ticket flow
@@ -49,7 +50,7 @@ Roadmap, tickets, issues, and handovers live in `.story/` (storybloq). When star
 - **No TypeScript.** Vanilla JS with JSDoc for the surface where it matters.
 - **No component framework.** DOM APIs directly.
 - **No test framework beyond vitest.** No Playwright, no visual regression.
-- **No linter yet.** ESLint/prettier is a reasonable follow-up but not in place.
+- **ESLint checks bugs, not formatting.** Follow `eslint.config.js`; there is no Prettier pass.
 - **No i18n.** English-only UI copy.
 
 Deep design context (why every technical choice was made): `LEARNINGS.md`.

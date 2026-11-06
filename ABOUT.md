@@ -14,49 +14,51 @@ inside the SVG's `<style>` block. The output is a self-contained file that
 renders the same everywhere — including when used as `<img src="...">`, which
 is where most "broken text" reports come from.
 
-## What it does, step by step
+## How a font reaches the output
 
-1. **Parse.** Walks the SVG looking for every distinct `font-family`, in
-   `<style>` blocks and on individual elements.
-2. **Strip junk.** Removes deprecated SVG `<font>` glyph blocks if present.
-   These are an old format some editors (Vecta Nano, older Inkscape) still
-   emit, and no browser since IE 9 actually renders them. They're inert
-   bytes that bloat the file.
-3. **Resolve.** For each family, infers the weight from the suffix
-   (`Roboto-Bold` → 700, `Open Sans Light` → 300) and fetches the matching
-   latin-subset woff2 from Fontsource via jsDelivr.
-4. **Embed.** Adds an `@font-face` rule with a `data:font/woff2;base64,...`
-   URI for each font, prepended to the SVG's existing `<style>` block.
-5. **Optionally optimize.** Runs SVGO with safe defaults — `inlineStyles`
-   and `minifyStyles` are disabled because they'd corrupt the base64 we
-   just inlined.
+1. **Find the font names.** The parser reads `font-family` declarations from
+   style blocks and element attributes. When enabled, it strips deprecated
+   SVG `<font>` blocks.
+2. **Try Fontsource.** The resolver infers weight and style from family-name
+   suffixes, then requests a WOFF2 from jsDelivr. It tries Latin before Latin
+   Extended and checks the font signature before embedding.
+3. **Resolve missing faces.** For fonts absent from Fontsource, the app can try
+   the browser's Local Font Access API. If detection is unavailable, denied or
+   finds no match, use **Upload font** or drop a file onto that face's row.
+   WOFF2, WOFF, TTF and OTF files are accepted. The local path matches PostScript
+   names before family names. Detection requires browser support and permission;
+   the file-input path is the alternative. Use fonts you may redistribute.
+4. **Subset when useful.** With **Subset glyphs** enabled, fontkit keeps glyphs
+   for text-bearing SVG elements plus Basic Latin. A smaller subset is embedded
+   as TrueType; otherwise the original font and format are retained. Fonts read
+   through local detection are also embedded as TrueType. Output is therefore
+   not always WOFF2. A subset cannot supply glyphs for arbitrary later text edits.
+5. **Embed and optimize.** The app inserts `@font-face` rules with base64 data
+   URIs into a style block. The optional SVGO pass disables `inlineStyles` and
+   `minifyStyles` to protect those rules. If optimization fails, the report says
+   so and the processed SVG remains available.
 
-## What it does *not* do
+The report distinguishes resolved and missing faces and shows embedded payload
+sizes. A successful download does not mean every font resolved. Your browser can
+use an installed font in the preview, masking a missing embed; check the warnings
+and the downloaded file in its intended destination.
 
-- Subset glyphs. The latin woff2 files are ~20–30 KB each. A glyph subset of
-  only the characters actually used in the SVG would shrink that 5–10×, but
-  doing that in the browser needs a wasm subsetter, and we wanted a small
-  V1.
-- Resolve custom or paid fonts. Fontsource only mirrors Google Fonts'
-  catalog. If you're using something else, you'd extend
-  `src/lib/fetchFont.js` with another resolver, or hand-paste an
-  `@font-face` block.
-- Outline text to paths. Outlining loses semantics (selectable text,
-  accessibility, screen readers, copy-paste) and bloats the file. Use
-  Illustrator's "Create Outlines" if you want that — the whole point of
-  this tool is the opposite.
+## Why keep text instead of outlining?
 
-## Why this gap exists
+Embedding keeps real `<text>` nodes available for editing and text extraction.
+Outlining converts them into paths. File-size savings depend on the text, font
+and subset; there is no fixed reduction ratio. Accessibility also depends on the
+SVG markup and how the destination presents it, not just whether a font embeds.
 
-There are good tools at every step of the pipeline, but none that do all
-three together in a browser:
+The [README](README.md#fix-an-svg) gives the complete processing/export path.
+[LEARNINGS.md](LEARNINGS.md) preserves the original research, alternatives and
+failed approaches; [RULES.md](RULES.md) records the implementation constraints.
 
-- **SVGO / SVGOMG** — optimization, no font handling
-- **Vecta Nano** — claims font embedding, ships the deprecated `<font>`
-  format
-- **Transfonter** — generates `@font-face` CSS from uploaded fonts, no SVG
-- **svg-buddy** (Java) and **svg-embed-font** (Go) — full pipeline, but
-  CLI-only and require their respective runtimes installed
+## Credits
 
-This project is the small SPA in the middle: paste in an SVG, get one back
-that works.
+The tool is a companion to [SVGOMG](https://jakearchibald.github.io/svgomg/).
+Fonts come from [Fontsource](https://fontsource.org/) via
+[jsDelivr](https://www.jsdelivr.com/); [fontkit](https://github.com/foliojs/fontkit)
+handles subsetting and [SVGO](https://svgo.dev/) handles optimization. The
+[interface footer](index.html) also credits [Squoosh](https://squoosh.app/) for
+layout inspiration. Original project licence: [MIT](LICENSE).

@@ -19,74 +19,52 @@ Everything runs in your browser — no upload, no backend, no account.
 > A companion to [SVGOMG](https://jakearchibald.github.io/svgomg/), which is
 > great at optimizing SVGs but doesn't touch fonts.
 
-## The problem
+## Fix an SVG
 
-Design tools (Figma, Illustrator, Inkscape) export SVGs that reference fonts
-by name — `font-family: Roboto-Bold` — without embedding them. Some emit
-deprecated SVG `<font>` glyph blocks that no modern browser renders. The file
-looks fine in your editor and broken everywhere else.
+1. Open the live app and drop an `.svg`, use **Choose file**, or pick a sample.
+   Processing starts automatically.
+2. Compare the before/after views and check the font report. **Embed fonts**,
+   **Strip `<font>`** and **Subset glyphs** start enabled; **Optimize (SVGO)** is optional.
+   Changing an option processes the original SVG again.
+3. Resolve any missing-font warnings before sharing. Use **Upload font** or drag
+   a font onto its face row. Installed-font detection is available when the browser
+   supports it and you allow access.
+4. Choose **Download fixed SVG** to save `<name>-embedded.svg`, or **Copy SVG** to
+   copy the output markup. If clipboard access fails, download the file instead.
 
-**SVGOMG-Font fixes both:**
+A preview can look correct because a font is installed on your device even when
+it has not been embedded. Check the report, then test the downloaded SVG where
+you plan to use it. Download remains available when some fonts are unresolved.
 
-1. Strips deprecated `<font>` blocks.
-2. Fetches each referenced font (latin subset, WOFF2) from
-   [Fontsource](https://fontsource.org/) via jsDelivr.
-3. Embeds them as `@font-face` rules with `data:` URIs in the SVG's `<style>`.
-4. Optionally runs SVGO with safe settings (won't shred the embedded fonts).
+## Fonts and options
 
-## Why embedding beats outlining
+- Fontsource fonts are fetched through jsDelivr, so the first lookup needs a
+  network connection. Your SVG is processed in the browser.
+- For a missing face, add a `.woff2`, `.woff`, `.ttf` or `.otf` file. Only embed fonts
+  whose licence permits redistribution; the app does not verify those rights.
+- **Subset glyphs** keeps used characters plus Basic Latin. It uses the full font
+  if subsetting fails or produces a larger result. Reprocess after adding text
+  that needs characters outside the subset.
+- The automatic resolver tries Latin, then Latin Extended; it does not provide
+  every script. Weight hints such as `-Bold` are read from the family name;
+  ambiguous names default to 400. Check the report when the weight looks wrong.
 
-The common workaround is to *outline* text — converting glyphs to bezier
-paths. It works visually, but:
+[How font resolution and embedding work](ABOUT.md) covers local detection,
+output formats, subsetting and the tradeoff with outlining.
 
-| | Outlining | Embedding |
-|---|---|---|
-| **File size** | Hundreds of bytes per glyph | One WOFF2 subset (10–40 KB) covers all glyphs |
-| **Accessibility** | Shapes — screen readers skip them | Real `<text>` nodes — readable by screen readers, Find-in-Page, OS a11y tools |
-| **Machine-readable** | Opaque bezier curves | Searchable, translatable, LLM-readable text |
-| **Editable** | Write-once | Change text by hand or programmatically |
+## Run locally
 
-For text-heavy SVGs, embedding a font is routinely *smaller* than outlining.
+Use Node.js 24 and npm:
 
-## Usage
-
-```bash
-npm install
-npm run dev     # opens at http://localhost:5180
+```sh
+npm ci
+npm run dev
 ```
 
-Or, for a one-shot start (installs deps if missing):
-
-```bash
-npm start
-```
-
-## Samples
-
-A few test SVGs are in `public/samples/`. Pick one from the UI and click
-**Process** to see the before/after. The "Roboto card" sample includes a
-deprecated `<font>` block to demonstrate the strip path.
-
-## Limitations
-
-- Fontsource covers the Google Fonts catalog. Custom or paid fonts aren't
-  resolved automatically — drop them in by hand or extend
-  `src/lib/fetchFont.js` with another resolver.
-- Latin subset only by default.
-- Weight inference comes from the family name suffix (`-Bold`, ` Bold`, etc.).
-  Ambiguous names (`Roboto`) default to weight 400.
-
-## Stack
-
-- [Vite](https://vitejs.dev/) — dev server + bundler
-- [SVGO](https://svgo.dev/) — optional optimization pass
-- Vanilla JS, no framework
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). Conventional Commits, small PRs.
+Open <http://localhost:5180/svgomg-font/>. Or use `npm start` for a one-shot
+launch that installs dependencies if missing. [Contributing](CONTRIBUTING.md)
+covers tests, lint, builds and project rules.
 
 ## License
 
 MIT — see [LICENSE](LICENSE).
-

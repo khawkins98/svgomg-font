@@ -6,14 +6,32 @@ focused.
 
 ## Local setup
 
+Use Node.js 24 and npm. From the repository root:
+
 ```bash
-git clone <this repo>
-cd svgomg-font
-npm install
+npm ci
 npm run dev
 ```
 
-Vite hot-reloads on save. The whole app lives in `src/` and `index.html`.
+Open <http://localhost:5180/svgomg-font/>. Vite hot-reloads on save; keep the
+server running while you use it. The app lives in `src/` and `index.html`.
+`npm start` installs dependencies if missing and starts Vite as an alternative.
+
+In another terminal:
+
+```sh
+npm run lint
+npm test
+npm run build
+```
+
+The build writes `dist/`. Use `npm run preview` to serve it and open
+`/svgomg-font/` on the printed origin. GitHub Pages deploys `dist/`; Markdown
+guides stay in the source repository. `npm ci` also configures the project's
+commit-message hook through `prepare`.
+
+Read [RULES.md](RULES.md) before implementation changes. Keep the SVGO font-safe
+settings and preview isolation intact. [LEARNINGS.md](LEARNINGS.md) records why.
 
 ## Branching
 
@@ -72,7 +90,7 @@ shows what.
 ## What's in scope
 
 - Better font resolution (more sources, smarter family-name parsing)
-- Subsetting (right now we ship full latin — a glyph subset would shrink output 5–10×)
+- Improvements to the existing glyph-subsetting path
 - Better SVGO defaults that don't break embedded fonts
 - More sample SVGs that exercise edge cases
 
@@ -81,3 +99,11 @@ shows what.
 - Hosting fonts ourselves. We pull from Fontsource on demand.
 - A backend. The whole point is client-side.
 - Editor features (path editing, recoloring). Use Inkscape/Illustrator/Figma.
+
+## Documentation maintenance
+
+Keep first use, export and font-resolution limits in README; maintain the
+pipeline explanation in [ABOUT.md](ABOUT.md) and commands here. Check instructions
+against the current UI, including automatic processing and missing-face rows.
+Preserve clear product copy and the dated changelog, research and handover records.
+Record user-visible changes under **Unreleased** in [CHANGELOG.md](CHANGELOG.md).
