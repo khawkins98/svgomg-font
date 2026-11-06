@@ -4,11 +4,13 @@ Guidance for AI coding agents working in this repo. Read this before touching co
 
 ## What this is
 
-**svgomg-font** — client-side browser tool for fixing broken SVG fonts. Drop in an SVG that references web fonts by name (`font-family: Roboto-Bold`); get back the same SVG with those fonts embedded as base64 WOFF2 so text renders reliably in `<img>` tags, emails, and sandboxed contexts.
+**svgomg-font** — client-side browser tool for embedding fonts in SVGs. Start with
+[README usage and limitations](README.md#usage) and [ABOUT.md](ABOUT.md) for the
+current pipeline and output formats.
 
-- Single-page Vite + vanilla JS app. No framework, no backend, no data.
+- Single-page Vite + vanilla JS app. No framework or backend.
 - Deployed statically to GitHub Pages via `.github/workflows/deploy.yml`.
-- Everything runs in the user's browser — no upload, no accounts.
+- SVG/font files are processed in the browser; font lookup makes CDN requests.
 
 ## Where the important stuff lives
 
@@ -23,22 +25,15 @@ Guidance for AI coding agents working in this repo. Read this before touching co
 
 ## Rules to follow
 
-The full list is in `RULES.md`. Highlights:
-
-- Never enable SVGO `inlineStyles` or `minifyStyles`. They break embedded font blocks.
-- Validate WOFF2 magic bytes (`77 4F 46 32`) on every fetch — a 404 HTML body base64-encodes silently otherwise.
-- Match local fonts by `.postscriptName` first, `.family` second.
-- The `font-family` regex negated set must include `{}` — minified CSS gets swallowed as one giant match without it.
-- `fontkit` is dynamic-imported (`import('fontkit')` inside `subsetFontIfPossible`), never at module top level.
-- The "before" pane preview must not inherit the document's `@font-face` rules.
+Read [RULES.md](RULES.md) before editing the pipeline. It is the maintained home
+for SVGO safety, font validation/matching, regex boundaries, lazy imports, and
+preview isolation constraints.
 
 ## Working on this repo
 
-- `npm run dev` — Vite dev server at `http://localhost:5180/svgomg-font/`.
-- `npm test` — vitest, currently 33 tests covering the LEARNINGS.md gotchas.
-- `npm run build` — production build to `dist/`.
-- CI runs tests + build on every PR (`.github/workflows/ci.yml`); deploy runs on push to main.
-- `.githooks/commit-msg` blocks AI-attribution trailers. `npm install` wires it up via the `prepare` script.
+Follow [CONTRIBUTING.md](CONTRIBUTING.md#local-setup) for setup, checks, commit/PR
+conventions, and documentation maintenance. `package.json` and the workflows are
+the executable sources for commands and automation.
 
 ## Ticket flow
 
@@ -49,7 +44,8 @@ Roadmap, tickets, issues, and handovers live in `.story/` (storybloq). When star
 - **No TypeScript.** Vanilla JS with JSDoc for the surface where it matters.
 - **No component framework.** DOM APIs directly.
 - **No test framework beyond vitest.** No Playwright, no visual regression.
-- **No linter yet.** ESLint/prettier is a reasonable follow-up but not in place.
+- **ESLint checks bugs**, without formatting rules. No Prettier setup.
 - **No i18n.** English-only UI copy.
 
-Deep design context (why every technical choice was made): `LEARNINGS.md`.
+Research and failed experiments: [LEARNINGS.md](LEARNINGS.md). Treat historical
+observations there and in `.story/` as records, not current feature inventories.
