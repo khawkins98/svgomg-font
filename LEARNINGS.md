@@ -3,6 +3,11 @@
 A running log of things discovered while building this. Written so the
 next person (or future-us) doesn't have to repeat the research.
 
+Maintenance note (2026-11-06): this log preserves discoveries and experiments
+from development, including earlier feature gaps and failed approaches. For
+current usage and limits, see [README.md](README.md); for the current pipeline,
+see [ABOUT.md](ABOUT.md); for maintained constraints, see [RULES.md](RULES.md).
+
 ---
 
 ## SVG `<font>` glyph blocks are dead

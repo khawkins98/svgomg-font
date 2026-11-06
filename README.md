@@ -8,79 +8,70 @@
 
 **[Try it live →](https://www.allaboutken.com/svgomg-font/)**
 
-Drop in an SVG that references web fonts. Get back the same SVG with those
-fonts embedded as base64 WOFF2 — so text renders reliably in any browser,
-including when the file is used as an `<img>`, emailed, or opened on a
-machine without the original fonts installed.
+Drop in an SVG that references fonts by name. Get back an SVG with font data
+embedded as base64 — so the fonts travel with the file, including when used
+as an `<img>` on a machine without those fonts installed.
 
-Optional [SVGO](https://svgo.dev/) pass strips editor cruft on the way out.
-Everything runs in your browser — no upload, no backend, no account.
+The tool fetches WOFF2 fonts from [Fontsource](https://fontsource.org/) via
+jsDelivr and can use installed or uploaded fonts when automatic lookup fails.
+Glyph subsetting and an optional [SVGO](https://svgo.dev/) pass help reduce
+output size. Everything runs in your browser — no SVG upload, backend, or account.
+Font lookup still makes network requests to the CDN.
 
 > A companion to [SVGOMG](https://jakearchibald.github.io/svgomg/), which is
 > great at optimizing SVGs but doesn't touch fonts.
 
-## The problem
-
-Design tools (Figma, Illustrator, Inkscape) export SVGs that reference fonts
-by name — `font-family: Roboto-Bold` — without embedding them. Some emit
-deprecated SVG `<font>` glyph blocks that no modern browser renders. The file
-looks fine in your editor and broken everywhere else.
-
-**SVGOMG-Font fixes both:**
-
-1. Strips deprecated `<font>` blocks.
-2. Fetches each referenced font (latin subset, WOFF2) from
-   [Fontsource](https://fontsource.org/) via jsDelivr.
-3. Embeds them as `@font-face` rules with `data:` URIs in the SVG's `<style>`.
-4. Optionally runs SVGO with safe settings (won't shred the embedded fonts).
-
-## Why embedding beats outlining
-
-The common workaround is to *outline* text — converting glyphs to bezier
-paths. It works visually, but:
-
-| | Outlining | Embedding |
-|---|---|---|
-| **File size** | Hundreds of bytes per glyph | One WOFF2 subset (10–40 KB) covers all glyphs |
-| **Accessibility** | Shapes — screen readers skip them | Real `<text>` nodes — readable by screen readers, Find-in-Page, OS a11y tools |
-| **Machine-readable** | Opaque bezier curves | Searchable, translatable, LLM-readable text |
-| **Editable** | Write-once | Change text by hand or programmatically |
-
-For text-heavy SVGs, embedding a font is routinely *smaller* than outlining.
-
 ## Usage
 
-```bash
-npm install
-npm run dev     # opens at http://localhost:5180
-```
-
-Or, for a one-shot start (installs deps if missing):
-
-```bash
-npm start
-```
+1. Open the live app and use **Choose file**, drop an `.svg` file, or paste
+   SVG markup with **Paste SVG** or Cmd+V / Ctrl+V. You can also start with a sample.
+2. Processing starts automatically. Compare **Before** and **After**, then
+   check the report for missing faces and assumed weights. A correct-looking
+   preview alone does not prove a font was embedded: your device may already have it.
+3. For a missing face, use **Upload font** with a `.woff2`, `.woff`, `.ttf`, or
+   `.otf` file. Where the browser supports it, installed-font detection may
+   prompt for permission; **Detect installed fonts** or **Retry font detection**
+   lets you try again. Only embed fonts whose license permits redistribution;
+   the tool does not verify font rights.
+4. Adjust **Options** if needed; changes reprocess the original SVG. **Embed
+   fonts**, **Strip `<font>`**, and **Subset glyphs** start enabled; **Optimize
+   (SVGO)** starts disabled. **Background** changes only the preview canvas.
+5. Choose **Download fixed SVG** (saved as `<name>-embedded.svg`) or **Copy SVG**.
+   Test that file in its intended viewer before sharing it. If clipboard access
+   is blocked, use the keyboard shortcut to paste input and download the output.
 
 ## Samples
 
-A few test SVGs are in `public/samples/`. Pick one from the UI and click
-**Process** to see the before/after. The "Roboto card" sample includes a
-deprecated `<font>` block to demonstrate the strip path.
+The app's samples are also in [`public/samples/`](public/samples/). **Roboto
+card** exercises deprecated `<font>` stripping, **Lato regular + bold** uses
+mixed weights, and **Helvetica Neue report** and **Optima quote** exercise the
+installed/uploaded-font fallback. Select a sample to process it automatically.
 
 ## Limitations
 
-- Fontsource covers the Google Fonts catalog. Custom or paid fonts aren't
-  resolved automatically — drop them in by hand or extend
-  `src/lib/fetchFont.js` with another resolver.
-- Latin subset only by default.
-- Weight inference comes from the family name suffix (`-Bold`, ` Bold`, etc.).
-  Ambiguous names (`Roboto`) default to weight 400.
+- Automatic lookup requests Fontsource's Latin WOFF2 file, trying Latin Extended
+  only if that request fails. It does not select a character subset by the SVG's
+  language. For other scripts, supply a font with the required glyphs.
+- CDN weight/style inference uses family-name suffixes (`Roboto-Bold`,
+  `Roboto-Bold-Italic`). A bare `Roboto` resolves to weight 400 even if the SVG
+  separately declares `font-weight="700"`; check the report and appearance.
+- Installed-font detection requires browser support for the Local Font Access
+  API and permission. Manual upload is the fallback when detection is unavailable,
+  blocked, or finds no match.
+- Subsetting keeps the used characters plus Basic Latin and may produce TrueType
+  data rather than WOFF2. It retains the original font if subsetting fails or
+  increases size. Disable **Subset glyphs** if you need more characters for later edits.
+- Embedded fonts preserve `<text>` nodes; accessibility still depends on the
+  SVG markup and how it is embedded. Email clients and other viewers may strip
+  SVGs, styles, or embedded fonts. Check the destination's support.
 
-## Stack
+See [ABOUT.md](ABOUT.md) for the pipeline and the tradeoffs behind embedding.
 
-- [Vite](https://vitejs.dev/) — dev server + bundler
-- [SVGO](https://svgo.dev/) — optional optimization pass
-- Vanilla JS, no framework
+## Local development
+
+See [local setup in CONTRIBUTING.md](CONTRIBUTING.md#local-setup) for prerequisites,
+installation, the dev-server URL, and checks. The app uses Vite, SVGO, fontkit,
+and vanilla JavaScript; it has no component framework or backend.
 
 ## Contributing
 
@@ -88,5 +79,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Conventional Commits, small PRs.
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
-
+MIT — see [LICENSE](LICENSE). Font licenses are separate from the app's license.
